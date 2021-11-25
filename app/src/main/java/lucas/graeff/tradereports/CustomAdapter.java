@@ -1,9 +1,12 @@
 package lucas.graeff.tradereports;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
+import android.media.Image;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -14,7 +17,7 @@ import java.util.ArrayList;
 public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHolder> {
 
     private Context context;
-    private ArrayList report_id, report_ticker, report_date, report_predictedMove, report_esp, report_sinceLast, report_zscore, report_momentum, report_vgm;
+    private ArrayList report_id, report_ticker, report_date, report_predictedMove, report_esp, report_sinceLast, report_zscore, report_momentum, report_vgm, report_time;
 
     public CustomAdapter(Context context,
                   ArrayList report_id,
@@ -24,7 +27,8 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
                   ArrayList report_sinceLast,
                   ArrayList report_zscore,
                   ArrayList report_momentum,
-                  ArrayList report_vgm){
+                  ArrayList report_vgm,
+                  ArrayList report_time){
 
         this.context = context;
         this.report_id = report_id;
@@ -36,6 +40,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
         this.report_zscore = report_zscore;
         this.report_momentum = report_momentum;
         this.report_vgm = report_vgm;
+        this.report_time = report_time;
     }
 
 
@@ -48,18 +53,6 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
     }
 
     @Override
-    public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
-        holder.ticker_txt.setText(String.valueOf(report_ticker.get(position)));
-        holder.date_txt.setText(String.valueOf(report_date.get(position)).substring(5));
-        holder.predicted_move_txt.setText(String.valueOf(report_predictedMove.get(position)).replace(".0", "") + "%");
-        holder.esp_txt.setText((String.valueOf(report_esp.get(position))));
-        holder.since_last_txt.setText(String.valueOf(report_sinceLast.get(position)));
-        holder.zscore_txt.setText(String.valueOf(report_zscore.get(position)));
-        holder.momentum_txt.setText(String.valueOf(report_momentum.get(position)));
-        holder.vgm_txt.setText(String.valueOf(report_vgm.get(position)));
-    }
-
-    @Override
     public int getItemCount() {
         return report_id.size();
     }
@@ -67,6 +60,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
     public class MyViewHolder extends RecyclerView.ViewHolder {
 
         TextView ticker_txt, date_txt, predicted_move_txt, esp_txt, since_last_txt, zscore_txt, momentum_txt, vgm_txt;
+        ImageView time_img;
 
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -78,6 +72,26 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
             zscore_txt = itemView.findViewById(R.id.zscore_txt);
             momentum_txt = itemView.findViewById(R.id.momentum_txt);
             vgm_txt = itemView.findViewById(R.id.vgm_txt);
+            time_img = itemView.findViewById(R.id.time_img);
         }
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
+        holder.ticker_txt.setText(String.valueOf(report_ticker.get(position)));
+        holder.date_txt.setText(String.valueOf(report_date.get(position)).substring(5));
+        holder.predicted_move_txt.setText(String.valueOf(report_predictedMove.get(position)).replace(".0", "") + "%");
+        holder.esp_txt.setText((String.valueOf(report_esp.get(position))));
+        holder.since_last_txt.setText(String.valueOf(report_sinceLast.get(position)));
+        holder.zscore_txt.setText(String.valueOf(report_zscore.get(position)));
+        holder.momentum_txt.setText(String.valueOf(report_momentum.get(position)));
+        holder.vgm_txt.setText(String.valueOf(report_vgm.get(position)));
+        if(Integer.valueOf(String.valueOf(report_time.get(position))) == 1) {
+            holder.time_img.setImageResource(R.drawable.ic_baseline_nights_stay_24);
+        }
+        else {
+            holder.time_img.setImageResource(R.drawable.ic_baseline_wb_sunny_24);
+        }
+
     }
 }

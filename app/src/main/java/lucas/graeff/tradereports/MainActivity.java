@@ -4,32 +4,22 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.util.Log;
-import android.widget.Toast;
+import android.widget.Switch;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
-import java.io.IOException;
-import java.lang.reflect.Array;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
+
+import lucas.graeff.tradereports.webscraping.WebInfo;
+import lucas.graeff.tradereports.webscraping.WebInfoZacks;
 
 public class MainActivity extends AppCompatActivity {
 
     MyDatabaseHelper db;
     ArrayList<String> report_ticker, report_vgm, report_momentum, report_date, recent_tickers;
     ArrayList<Double> report_predictedMove, report_sinceLast, report_esp;
-    ArrayList<Integer> report_id, report_zscore;
+    ArrayList<Integer> report_id, report_zscore, report_time;
     CustomAdapter customAdapter;
 
     private Object[] rows;
@@ -39,10 +29,33 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
+        Switch filter_switch = findViewById(R.id.filter_switch);
         db = new MyDatabaseHelper(this);
 
         retrieveWebInfo();
+        readData(db.readAllData());
+        display(recyclerView);
 
+        filter_switch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                readData(db.readFilteredData());
+            } else {
+                readData(db.readAllData());
+            }
+            display(recyclerView);
+        });
+
+    }
+
+    public void display(RecyclerView recyclerView) {
+        //Display
+        customAdapter = new CustomAdapter(MainActivity.this, report_id, report_ticker, report_date, report_predictedMove, report_esp, report_sinceLast, report_zscore, report_momentum, report_vgm, report_time);
+        recyclerView.setAdapter(customAdapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+    }
+
+
+    public void readData(Cursor data) {
         //Store onto readable arrays
         report_id = new ArrayList<>();
         report_ticker = new ArrayList<>();
@@ -53,21 +66,10 @@ public class MainActivity extends AppCompatActivity {
         report_zscore = new ArrayList<>();
         report_momentum = new ArrayList<>();
         report_vgm = new ArrayList<>();
+        report_time = new ArrayList<>();
 
-
-
-        readData();
-
-        //Display
-        customAdapter = new CustomAdapter(MainActivity.this, report_id, report_ticker, report_date, report_predictedMove, report_esp, report_sinceLast, report_zscore, report_momentum, report_vgm);
-        recyclerView.setAdapter(customAdapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
-
-    }
-
-    public void readData() {
-        Cursor cursor = db.readAllData();
-        while(cursor.moveToNext()) {
+        Cursor cursor = data;
+        while (cursor.moveToNext()) {
             report_id.add(cursor.getInt(0));
             report_ticker.add(cursor.getString(1));
             report_date.add(cursor.getString(2));
@@ -77,19 +79,20 @@ public class MainActivity extends AppCompatActivity {
             report_momentum.add(cursor.getString(6));
             report_vgm.add(cursor.getString(7));
             report_sinceLast.add(cursor.getDouble(8));
+            report_time.add(cursor.getInt(9));
         }
     }
 
     public void duplicateCheck() {
         Cursor cursor = db.getRecentTickers();
-        while(cursor.moveToNext()) {
+        while (cursor.moveToNext()) {
             recent_tickers.add(cursor.getString(0));
         }
     }
 
 
     public void retrieveWebInfo() {
-        HashMap<Integer, ArrayList<String>> colInfo;
+        HashMap<Integer, ArrayList<String>> colInfo = new HashMap<Integer, ArrayList<String>>();
         ArrayList tempArray;
 
         //Start web scrape of Upcoming
@@ -102,9 +105,7 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-
-        Log.d("Truffles", webInfo.getValue().toString());
-
+        //Initialize arrays for storage
         ArrayList ticker = new ArrayList<String>();
         ArrayList predicted = new ArrayList<Double>();
         ArrayList sinceLast = new ArrayList<Double>();
@@ -113,17 +114,20 @@ public class MainActivity extends AppCompatActivity {
         ArrayList vgm = new ArrayList<String>();
         ArrayList esp = new ArrayList<Double>();
         ArrayList date = new ArrayList<>();
+        ArrayList time = new ArrayList<>();
 
+        //Get stocksearning.com info
         colInfo = webInfo.getValue();
 
-        for(int i = 1; i < colInfo.size(); i++) {
+        //Parse and prepare
+        for (int i = 1; i < colInfo.size() + 1; i++) {
             tempArray = colInfo.get(i);
             ticker.add(tempArray.get(0).toString().substring(0, 4).replace("-", ""));
             predicted.add(Double.parseDouble((tempArray.get(2).toString().replace("%", ""))));
             sinceLast.add(Double.parseDouble((tempArray.get(3).toString().replace("%", ""))));
         }
 
-        //Web scrape Zacks
+        //Web scrape Zacks.com
         WebInfoZacks webInfoZacks = new WebInfoZacks(ticker);
         Thread threadZacks = new Thread(webInfoZacks);
         threadZacks.start();
@@ -133,32 +137,88 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
+        //Assign scraped info
         colInfo = webInfoZacks.getValue();
-        Log.d("Truffles2", webInfoZacks.getValue().toString());
 
-        for(int i = 0; i < colInfo.size(); i++) {
+        //Parse and prepare scraped info for database insertion
+
+        //For marking inaccurate stocks
+        ArrayList inaccurate = new ArrayList<>();
+        boolean marked = false;
+
+        for (int i = 0; i < colInfo.size(); i++) {
+            marked = false;
             tempArray = colInfo.get(i);
-            zscore.add(Integer.parseInt(tempArray.get(0).toString()));
-            momentum.add(tempArray.get(1).toString());
-            vgm.add(tempArray.get(2).toString());
-            esp.add(Double.parseDouble(tempArray.get(3).toString().replace("%", "")));
 
-            String tempDate = tempArray.get(4).toString().replace("*BMO" , "").replace("*AMC", "");
-            date.add(String.format("20%1$s-%2$s", tempDate.substring(6), tempDate.substring(0, 5).replace("/", "-")));
+            try {
+                zscore.add(Integer.parseInt(tempArray.get(0).toString()));
+            } catch (Exception e) {
+                zscore.add(6);
+                marked = true;
+            }
+
+            try {
+                momentum.add(tempArray.get(1).toString());
+            } catch (Exception e) {
+                momentum.add("-");
+                marked = true;
+            }
+
+            try {
+                vgm.add(tempArray.get(2).toString());
+            } catch (Exception e) {
+                vgm.add("-");
+                marked = true;
+            }
+
+            try {
+                if (tempArray.get(3).toString().contains("NA")) {
+                    esp.add(0.00);
+                } else {
+                    esp.add(Double.parseDouble(tempArray.get(3).toString().replace("%", "")));
+                }
+            } catch (Exception e) {
+                esp.add(0.00);
+                marked = true;
+            }
+
+            try {
+                if (tempArray.get(4).toString().contains("AMC")) {
+                    time.add(1);
+                } else {
+                    time.add(0);
+                }
+            } catch (Exception e) {
+                time.add(0);
+                marked = true;
+            }
+
+            try {
+                String tempDate = tempArray.get(4).toString().replace("*BMO", "").replace("*AMC", "");
+                if(tempDate.length() == 8) {
+                    date.add(String.format("20%1$s-%2$s", tempDate.substring(6), tempDate.substring(0, 5).replace("/", "-")));
+                }
+                else {
+                    date.add(String.format("20%1$s-%2$s", tempDate.substring(5), tempDate.substring(0, 4).replace("/", "-")));
+                }
+
+            } catch (Exception e) {
+                date.add("NANANA");
+                marked = true;
+            }
+
+            if(marked == true) {
+                inaccurate.add(i);
+            }
+
         }
 
-        //Add to database
         recent_tickers = new ArrayList<>();
         duplicateCheck();
 
-//        Date date1 = new Date();
-//        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-//        String format = formatter.format(date);
-
-
-        for(int i = 0; i < ticker.size(); i++) {
-            if(!recent_tickers.contains(ticker.get(i))){
-                db.addReport((String) ticker.get(i), (String) date.get(i), (Double) predicted.get(i), (Double) esp.get(i), (Integer) zscore.get(i), (String) momentum.get(i), (String) vgm.get(i), (Double) sinceLast.get(i));
+        for (int i = 0; i < ticker.size(); i++) {
+            if (!recent_tickers.contains(ticker.get(i)) && !inaccurate.contains(i)) {
+                db.addReport((String) ticker.get(i), (String) date.get(i), (Double) predicted.get(i), (Double) esp.get(i), (Integer) zscore.get(i), (String) momentum.get(i), (String) vgm.get(i), (Double) sinceLast.get(i), (Integer) time.get(i));
             }
         }
 

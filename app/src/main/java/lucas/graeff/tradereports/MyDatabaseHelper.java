@@ -28,6 +28,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
     private static final String COLUMN_MOMENTUM = "momentum";
     private static final String COLUMN_VGM = "vgm";
     private static final String COLUMN_SINCE_LAST = "since_last_earnings";
+    private static final String COLUMN_TIME = "time";
 
     public MyDatabaseHelper(@Nullable Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -46,7 +47,8 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
                         COLUMN_Z_SCORE+ " INTEGER, " +
                         COLUMN_MOMENTUM + " TEXT, " +
                         COLUMN_VGM + " TEXT, " +
-                        COLUMN_SINCE_LAST + " DOUBLE);";
+                        COLUMN_SINCE_LAST + " DOUBLE," +
+                        COLUMN_TIME + " INTEGER);";
         db.execSQL(query);
     }
 
@@ -56,7 +58,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    void addReport(String ticker, String date, double predictedMove, double esp, int zscore, String momentum, String vgm, double sinceLast) {
+    void addReport(String ticker, String date, double predictedMove, double esp, int zscore, String momentum, String vgm, double sinceLast, int time) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
 
@@ -68,6 +70,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
         cv.put(COLUMN_MOMENTUM, momentum);
         cv.put(COLUMN_VGM, vgm);
         cv.put(COLUMN_SINCE_LAST, sinceLast);
+        cv.put(COLUMN_TIME, time);
 
         long result = db.insert(TABLE_NAME, null, cv);
         if(result == -1) {
@@ -92,7 +95,27 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
 
 
     Cursor readAllData() {
-        String query = "SELECT * FROM " + TABLE_NAME;
+        String query = "SELECT * FROM " + TABLE_NAME + " WHERE reports.date > date('now', '-2 day')";
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = null;
+        if(db != null) {
+            cursor = db.rawQuery(query, null);
+        }
+        return cursor;
+    }
+
+    Cursor readFilteredData() {
+        String query = "SELECT * FROM reports\n" +
+                "WHERE z_score < 3\n" +
+                "AND esp >= 0" +
+                " AND reports.date > date('now', '-2 day')" +
+                " AND predicted_move > 1" +
+                " OR (z_score = 3 AND reports.vgm = 'A'  OR  z_score = 3 AND reports.vgm = 'B' )\n" +
+                "                AND esp > 0\n" +
+                "                AND reports.date > date('now', '-2 day')\n" +
+                "                 AND predicted_move > 1";
+
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cursor = null;

@@ -1,17 +1,14 @@
-package lucas.graeff.tradereports;
+package lucas.graeff.tradereports.webscraping;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.io.IOException;
-import java.sql.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
-public class WebInfo implements Runnable{
+public class PostEarnings implements Runnable {
     private Elements cols;
     private ArrayList<String> colInfoString;
     private HashMap<Integer, ArrayList<String>> colInfo;
@@ -20,13 +17,14 @@ public class WebInfo implements Runnable{
     public void run() {
         Document doc = null;
         try {
-            doc = Jsoup.connect("https://stocksearning.com/Upcoming-Earnings-Dates.aspx").get();
-        } catch (IOException e) {
+            //Go to past notable earnings page
+            doc = Jsoup.connect("https://stocksearning.com/Past-Notable-Earnings-Dates.aspx").get();
+
+        }
+        catch(Exception e) {
             e.printStackTrace();
         }
-        String title = doc.title();
-
-        Element contentList = doc.getElementById("TodaysEarningTable");
+        Element contentList = doc.getElementById("PostEarningTable");
         Elements rows = contentList.getElementsByTag("tr");
 
         //Find elements of UpcomingEarningReports
