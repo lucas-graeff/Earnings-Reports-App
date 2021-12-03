@@ -1,7 +1,6 @@
 package lucas.graeff.tradereports;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.media.Image;
@@ -17,31 +16,25 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
-import lucas.graeff.tradereports.fragments.HomeFragment;
-
-public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHolder> {
+public class PostAdapter extends RecyclerView.Adapter<PostAdapter.MyViewHolder> {
 
     private Context context;
-    private MyDatabaseHelper db;
-    private ArrayList report_id, report_ticker, report_date, report_predictedMove, report_esp, report_sinceLast, report_zscore, report_momentum, report_vgm, report_time, report_list;
-    private RecyclerViewClickListener listener;
+    private ArrayList report_id, report_ticker, report_date, report_predictedMove, report_esp, report_sinceLast, report_zscore, report_momentum, report_vgm, report_time, report_surprise, report_change;
 
-    public CustomAdapter(Context context,
-                  RecyclerViewClickListener listener,
-                  ArrayList report_id,
-                  ArrayList report_ticker, ArrayList report_date,
-                  ArrayList report_predictedMove,
-                  ArrayList report_esp,
-                  ArrayList report_sinceLast,
-                  ArrayList report_zscore,
-                  ArrayList report_momentum,
-                  ArrayList report_vgm,
-                  ArrayList report_time,
-                         ArrayList report_list){
+    public PostAdapter(Context context,
+                         ArrayList report_id,
+                         ArrayList report_ticker, ArrayList report_date,
+                         ArrayList report_predictedMove,
+                         ArrayList report_esp,
+                         ArrayList report_sinceLast,
+                         ArrayList report_zscore,
+                         ArrayList report_momentum,
+                         ArrayList report_vgm,
+                         ArrayList report_time,
+                         ArrayList report_surprise,
+                         ArrayList report_change){
 
         this.context = context;
-        this.listener = listener;
-
         this.report_id = report_id;
         this.report_ticker = report_ticker;
         this.report_date = report_date;
@@ -52,15 +45,16 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
         this.report_momentum = report_momentum;
         this.report_vgm = report_vgm;
         this.report_time = report_time;
-        this.report_list = report_list;
+        this.report_surprise = report_surprise;
+        this.report_change = report_change;
     }
 
 
     @NonNull
     @Override
-    public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType)  {
+    public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(context);
-        View view = inflater.inflate(R.layout.recycler_row, parent, false);
+        View view = inflater.inflate(R.layout.post_row, parent, false);
         return new MyViewHolder(view);
     }
 
@@ -69,13 +63,13 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
         return report_id.size();
     }
 
-    public class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener  {
+    public class MyViewHolder extends RecyclerView.ViewHolder {
 
-        TextView ticker_txt, date_txt, predicted_move_txt, esp_txt, since_last_txt, zscore_txt, momentum_txt, vgm_txt;
+        TextView ticker_txt, date_txt, predicted_move_txt, esp_txt, since_last_txt, zscore_txt, momentum_txt, vgm_txt, surprise_txt, change_txt;
         ImageView time_img;
         CardView card_view;
 
-        public MyViewHolder (@NonNull View itemView) {
+        public MyViewHolder(@NonNull View itemView) {
             super(itemView);
             ticker_txt = itemView.findViewById(R.id.ticker_txt);
             date_txt = itemView.findViewById(R.id.date_txt);
@@ -86,49 +80,14 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
             momentum_txt = itemView.findViewById(R.id.momentum_txt);
             vgm_txt = itemView.findViewById(R.id.vgm_txt);
             time_img = itemView.findViewById(R.id.time_img);
+            surprise_txt = itemView.findViewById(R.id.surprise_txt);
+            change_txt = itemView.findViewById(R.id.change_txt);
             card_view = itemView.findViewById(R.id.card_view);
-
-            itemView.setOnClickListener(this);
-        }
-
-        @Override
-        public void onClick(View v) {
-            listener.onClick(v, Integer.parseInt(String.valueOf(report_id.get(getAdapterPosition()))));
         }
     }
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
-
-        //Listen for card click
-        holder.card_view.setOnClickListener(view -> {
-            int id = Integer.valueOf((Integer) report_id.get(position));
-            db = new MyDatabaseHelper(context.getApplicationContext());
-
-            if(Integer.valueOf((Integer) report_list.get(position)) == 1) {
-                //Remove from list
-                db.UpdateList(id, 0);
-                report_list.set(position, 0);
-                holder.card_view.setBackgroundColor(Color.parseColor("#FFFFFF"));
-            }
-            else {
-                //Add to list
-                db.UpdateList(id, 1);
-                report_list.set(position, 1);
-                holder.card_view.setBackgroundColor(Color.parseColor("#FFA7D8FF"));
-            }
-
-            System.out.println("Card listener: " + id);
-        });
-
-        //Set background colors based off of list value
-        if(Integer.valueOf((Integer) report_list.get(position)) == 1) {
-            holder.card_view.setBackgroundColor(Color.parseColor("#FFA7D8FF"));
-        }
-        else {
-            holder.card_view.setBackgroundColor(Color.parseColor("#FFFFFF"));
-        }
-
         holder.ticker_txt.setText(String.valueOf(report_ticker.get(position)));
         holder.date_txt.setText(String.valueOf(report_date.get(position)).substring(5));
         holder.predicted_move_txt.setText(String.valueOf(report_predictedMove.get(position)).replace(".0", "") + "%");
@@ -143,10 +102,14 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
         else {
             holder.time_img.setImageResource(R.drawable.ic_baseline_wb_sunny_24);
         }
+        holder.surprise_txt.setText(String.valueOf(report_surprise.get(position)));
+        holder.change_txt.setText(String.valueOf(report_change.get(position)));
+        if(Double.valueOf((Double) report_change.get(position)) > 0) {
+            holder.card_view.setBackgroundColor(Color.parseColor("#B5E6B7"));
+        }
+        else {
+            holder.card_view.setBackgroundColor(Color.parseColor("#FFEABCBC"));
+        }
 
-    }
-
-    public interface RecyclerViewClickListener {
-        void onClick(View v, int id);
     }
 }
