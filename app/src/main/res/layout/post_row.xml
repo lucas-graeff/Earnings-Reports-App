@@ -29,10 +29,10 @@
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.011"
+                app:layout_constraintHorizontal_bias="0.014"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.0" />
+                app:layout_constraintVertical_bias="0.064" />
 
             <TextView
                 android:id="@+id/predicted_move_txt"
@@ -44,10 +44,10 @@
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="@+id/ticker_txt"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.357"
+                app:layout_constraintHorizontal_bias="0.302"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/ticker_txt"
-                app:layout_constraintVertical_bias="0.0" />
+                app:layout_constraintVertical_bias="0.384" />
 
             <TextView
                 android:id="@+id/zscore_txt"
@@ -59,7 +59,7 @@
                 android:textSize="24sp"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="@+id/predicted_move_txt"
-                app:layout_constraintHorizontal_bias="0.484"
+                app:layout_constraintHorizontal_bias="0.454"
                 app:layout_constraintStart_toStartOf="@+id/predicted_move_txt"
                 app:layout_constraintTop_toBottomOf="@+id/predicted_move_txt" />
 
@@ -69,41 +69,39 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="mm/dd"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="@+id/ticker_txt"
                 app:layout_constraintEnd_toStartOf="@+id/zscore_txt"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="@+id/ticker_txt"
-                app:layout_constraintTop_toBottomOf="@+id/ticker_txt"
-                app:layout_constraintVertical_bias="0.0" />
+                app:layout_constraintTop_toBottomOf="@+id/ticker_txt" />
 
             <TextView
                 android:id="@+id/esp_txt"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 android:text="#.##%"
                 android:textSize="24sp"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.856"
+                app:layout_constraintHorizontal_bias="0.798"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/esp_label"
-                app:layout_constraintVertical_bias="0.285" />
+                app:layout_constraintTop_toBottomOf="@+id/esp_label" />
 
             <TextView
                 android:id="@+id/esp_label"
                 android:layout_width="wrap_content"
                 android:layout_height="19dp"
+                android:layout_marginTop="16dp"
                 android:text="ESP"
                 app:layout_constraintEnd_toEndOf="@+id/esp_txt"
                 app:layout_constraintStart_toStartOf="@+id/esp_txt"
-                app:layout_constraintTop_toTopOf="@+id/since_last_label" />
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/since_last_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="16dp"
                 android:text="Since Last"
                 app:layout_constraintEnd_toEndOf="@+id/since_last_txt"
                 app:layout_constraintHorizontal_bias="0.0"
@@ -111,17 +109,64 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
+                android:id="@+id/surprise_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:text="Surprise"
+                app:layout_constraintBottom_toTopOf="@+id/surprise_txt"
+                app:layout_constraintEnd_toEndOf="@+id/surprise_txt"
+                app:layout_constraintStart_toStartOf="@+id/surprise_txt"
+                app:layout_constraintTop_toBottomOf="@+id/since_last_txt"
+                app:layout_constraintVertical_bias="1.0" />
+
+            <TextView
+                android:id="@+id/change_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:text="Change"
+                app:layout_constraintBottom_toTopOf="@+id/change_txt"
+                app:layout_constraintEnd_toEndOf="@+id/change_txt"
+                app:layout_constraintStart_toStartOf="@+id/change_txt"
+                app:layout_constraintTop_toBottomOf="@+id/esp_txt" />
+
+            <TextView
                 android:id="@+id/since_last_txt"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="#.##%"
+                android:textSize="24sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.532"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/since_last_label" />
+
+            <TextView
+                android:id="@+id/surprise_txt"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:layout_marginStart="183dp"
+                android:text="#.##%"
+                android:textSize="24sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="@+id/since_last_txt"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/change_txt"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
                 android:text="#.##%"
                 android:textSize="24sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.581"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/since_last_label"
-                app:layout_constraintVertical_bias="0.285" />
+                app:layout_constraintHorizontal_bias="0.801"
+                app:layout_constraintStart_toStartOf="parent" />
 
             <TextView
                 android:id="@+id/momentum_txt"
@@ -130,7 +175,6 @@
                 android:layout_marginTop="8dp"
                 android:text="A"
                 android:textSize="24sp"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="@+id/vgm_txt"
                 app:layout_constraintStart_toStartOf="@+id/vgm_txt"
                 app:layout_constraintTop_toBottomOf="@+id/vgm_txt" />
@@ -139,22 +183,26 @@
                 android:id="@+id/vgm_txt"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="4dp"
+                android:layout_marginEnd="24dp"
                 android:text="A"
                 android:textColor="@color/black"
                 android:textSize="34sp"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.0" />
 
             <ImageView
                 android:id="@+id/time_img"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="72dp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/date_txt"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.165"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/ticker_txt"
-                app:layout_constraintVertical_bias="0.137"
                 app:srcCompat="@drawable/ic_baseline_wb_sunny_24" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
