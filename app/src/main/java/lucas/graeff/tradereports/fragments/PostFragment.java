@@ -30,6 +30,10 @@ public class PostFragment extends Fragment {
     ArrayList<Integer> report_id, report_zscore, report_time;
 
     PostAdapter postAdapter;
+    Switch filter_switch;
+    int switchState;
+
+    private static final String SWITCH_KEY = "switch";
 
     public PostFragment() {
         // Required empty public constructor
@@ -40,6 +44,24 @@ public class PostFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        if(savedInstanceState != null) {
+            System.out.println(savedInstanceState.getInt(SWITCH_KEY));
+            switchState = savedInstanceState.getInt(SWITCH_KEY);
+        }
+    }
+
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+
+        super.onSaveInstanceState(outState);
+        if(filter_switch.isChecked()) {
+            outState.putInt(SWITCH_KEY, 1);
+        }
+        else {
+            outState.putInt(SWITCH_KEY, 0);
+        }
+
     }
 
     @Override
@@ -48,7 +70,11 @@ public class PostFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_post, container, false);
         db = new MyDatabaseHelper(getActivity().getApplicationContext());
         RecyclerView recyclerView = view.findViewById(R.id.recyclerView);
-        Switch filter_switch = view.findViewById(R.id.filter_switch);
+        filter_switch = view.findViewById(R.id.filter_switch);
+
+        if(switchState == 1){
+            filter_switch.setChecked(true);
+        }
 
         ReadData(db.PostInfo(false));
         Display(recyclerView);

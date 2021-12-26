@@ -13,7 +13,11 @@ import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.Switch;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,16 +54,18 @@ public class HomeFragment extends Fragment {
         db = new MyDatabaseHelper(getActivity().getApplicationContext());
     }
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_home, container, false);
-
         RecyclerView recyclerView = view.findViewById(R.id.recyclerView);
         Switch filter_switch = view.findViewById(R.id.filter_switch);
         db = new MyDatabaseHelper(getActivity().getApplicationContext());
 
+
+        //First app use
         prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
         if (prefs.getBoolean("firstrun", true)) {
             retrieveWebInfo();
@@ -67,24 +73,56 @@ public class HomeFragment extends Fragment {
             prefs.edit().putBoolean("firstrun", false).commit();
         }
 
-//        retrieveWebInfo();
         ReadData(db.readAllData());
         Display(recyclerView);
 
-
-
-        filter_switch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked) {
-                ReadData(db.readFilteredData());
-            } else {
-                ReadData(db.readAllData());
+        //Create dropdown menu
+        String[] dropdownOptions = { "No filter", "Minimum Risk", "Medium Risk", "Shorting" };
+        Spinner dropdown = (Spinner) view.findViewById(R.id.dropdown_menu);
+        ArrayAdapter<String> dropdownAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, dropdownOptions);
+        dropdownAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        dropdown.setAdapter(dropdownAdapter);
+        dropdown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String query;
+                switch(position) {
+                    case 0:
+                        ReadData(db.readAllData());
+                        break;
+                    case 1:
+                        query = "SELECT * FROM reports\n" +
+                                "WHERE z_score < 3\n" +
+                                "AND esp >= 0" +
+                                " AND reports.date > date('now', '-1 day')" +
+                                " AND predicted_move > 1" +
+                                " AND (reports.vgm = 'A' OR reports.vgm = 'B')";
+                        ReadData(db.readQuery(query));
+                        break;
+                    case 2:
+                        ReadData(db.readFilteredData());
+                        break;
+                    case 3:
+                        query = "SELECT * FROM reports\n" +
+                                "WHERE z_score > 3\n" +
+                                "AND esp <= 0" +
+                                " AND reports.date > date('now', '-1 day')" +
+                                " AND predicted_move > 1";
+                        ReadData(db.readQuery(query));
+                }
+                Display(recyclerView);
             }
-            Display(recyclerView);
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                System.out.println("onNothing");
+            }
         });
 
         // Inflate the layout for this fragment
         return view;
     }
+
 
     public void Display(RecyclerView recyclerView) {
         //Display
@@ -246,13 +284,20 @@ public class HomeFragment extends Fragment {
             }
 
             try {
-                String tempDate = tempArray.get(4).toString().replace("*BMO", "").replace("*AMC", "");
-                if(tempDate.length() == 8) {
-                    date.add(String.format("20%1$s-%2$s", tempDate.substring(6), tempDate.substring(0, 5).replace("/", "-")));
+                String tempDate = "";
+                String tempDateArray[] = tempArray.get(4).toString().replace("*BMO", "").replace("*AMC", "").split("/");
+                tempDate += "20" + tempDateArray[2] + "-";
+                if(tempDateArray[0].length() == 1) {
+                    tempDate += "0";
                 }
-                else {
-                    date.add(String.format("20%1$s-%2$s", tempDate.substring(5), tempDate.substring(0, 4).replace("/", "-")));
+                tempDate += tempDateArray[0] + "-";
+                if(tempDateArray[1].length() == 1) {
+                    tempDate += "0";
                 }
+                tempDate += tempDateArray[1];
+
+                date.add(tempDate);
+
 
             } catch (Exception e) {
                 date.add("NANANA");

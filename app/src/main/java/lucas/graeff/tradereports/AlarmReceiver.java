@@ -12,6 +12,7 @@ import androidx.core.app.NotificationManagerCompat;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import lucas.graeff.tradereports.webscraping.CollectData;
 import lucas.graeff.tradereports.webscraping.PostEarnings;
 import lucas.graeff.tradereports.webscraping.WebInfo;
 import lucas.graeff.tradereports.webscraping.WebInfoZacks;
@@ -20,13 +21,19 @@ public class AlarmReceiver extends BroadcastReceiver {
     MyDatabaseHelper db;
     ArrayList<String> recent_tickers;
 
+    private Context context;
+    public AlarmReceiver(Context context) {
+        this.context = context;
+    }
+
     @Override
     public void onReceive(Context context, Intent intent) {
         buildNotification(context);
 
         db = new MyDatabaseHelper(context.getApplicationContext());
-        retrieveWebInfo();
-        GetPost();
+//        retrieveWebInfo();
+//        GetPost();
+//        new CollectData(context.getApplicationContext());
 
     }
 
@@ -34,7 +41,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "stocks")
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
                 .setContentTitle("Upcoming Earnings Report")
-                .setContentText("This is placeholder")
+                .setContentText("GOOG is reporting after hours today")
                 .setAutoCancel(true)
                 .setDefaults(NotificationCompat.DEFAULT_ALL)
                 .setPriority(NotificationCompat.PRIORITY_HIGH);
@@ -151,7 +158,7 @@ public class AlarmReceiver extends BroadcastReceiver {
                     date.add(String.format("20%1$s-%2$s", tempDate.substring(6), tempDate.substring(0, 5).replace("/", "-")));
                 }
                 else {
-                    date.add(String.format("20%1$s-%2$s", tempDate.substring(5), tempDate.substring(0, 4).replace("/", "-")));
+                    date.add(String.format("20%1$s-%2$s%3$s", tempDate.substring(5), tempDate.substring(0, 3).replace("/", "-"), tempDate.substring(3, 4)));
                 }
 
             } catch (Exception e) {

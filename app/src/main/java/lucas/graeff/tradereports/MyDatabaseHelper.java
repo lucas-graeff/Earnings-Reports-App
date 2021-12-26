@@ -84,12 +84,6 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
         cv.put(COLUMN_TIME, time);
 
         long result = db.insert(TABLE_NAME, null, cv);
-        if(result == -1) {
-            Toast.makeText(context, "Failed", Toast.LENGTH_SHORT).show();
-        }
-        else {
-            Toast.makeText(context, "Success", Toast.LENGTH_SHORT).show();
-        }
 
     }
 
@@ -129,23 +123,6 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(query, new String[] {String.valueOf(list), String.valueOf(id)});
     }
 
-    //Query post earnings info
-    public Cursor PostInfo(boolean list){
-        String query;
-        if(list) {
-            query = "SELECT * FROM " + TABLE_NAME + " WHERE change NOT NULL AND list = 1 LIMIT 50";
-        }
-        else {
-            query = "SELECT * FROM " + TABLE_NAME + " WHERE change NOT NULL LIMIT 50";
-        }
-
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = null;
-        if(db != null) {
-            cursor = db.rawQuery(query, null);
-        }
-        return cursor;
-    }
 
     public Cursor getRecentTickers() {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -160,9 +137,37 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
 
 
     public Cursor readAllData() {
-        String query = "SELECT * FROM " + TABLE_NAME + " WHERE reports.date > date('now', '-2 day')";
+        String query = "SELECT * FROM " + TABLE_NAME + " WHERE reports.date > date('now', '-1 day')";
         SQLiteDatabase db = this.getReadableDatabase();
 
+        Cursor cursor = null;
+        if(db != null) {
+            cursor = db.rawQuery(query, null);
+        }
+        return cursor;
+    }
+
+    public Cursor readQuery(String query) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = null;
+        if(db != null) {
+            cursor = db.rawQuery(query, null);
+        }
+        return cursor;
+    }
+
+    //Query post earnings info
+    public Cursor PostInfo(boolean list){
+        String query;
+        if(list) {
+            query = "SELECT * FROM " + TABLE_NAME + " WHERE change NOT NULL AND list = 1  ORDER BY date DESC LIMIT 50";
+        }
+        else {
+            query = "SELECT * FROM " + TABLE_NAME + " WHERE change NOT NULL  ORDER BY date DESC LIMIT 50";
+        }
+
+        SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = null;
         if(db != null) {
             cursor = db.rawQuery(query, null);
@@ -189,7 +194,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
                 " AND predicted_move > 1" +
                 " OR (z_score = 3 AND reports.vgm = 'A'  OR  z_score = 3 AND reports.vgm = 'B' )\n" +
                 "                AND esp > 0\n" +
-                "                AND reports.date > date('now', '-2 day')\n" +
+                "                AND reports.date > date('now', '-1 day')\n" +
                 "                 AND predicted_move > 1";
 
         SQLiteDatabase db = this.getReadableDatabase();
