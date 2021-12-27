@@ -10,7 +10,10 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 
 public class MyDatabaseHelper extends SQLiteOpenHelper {
 
@@ -20,21 +23,63 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
 
     //Report columns
     private static final String TABLE_NAME = "reports";
+//    private static final String COLUMN_ID = "id";
+//    private static final String COLUMN_TICKER = "ticker";
+//    private static final String COLUMN_DATE = "date";
+//    private static final String COLUMN_PREDICTED_MOVE = "predicted_move";
+//    private static final String COLUMN_ESP = "esp";
+//    private static final String COLUMN_Z_SCORE = "z_score";
+//    private static final String COLUMN_MOMENTUM = "momentum";
+//    private static final String COLUMN_VGM = "vgm";
+//    private static final String COLUMN_SINCE_LAST = "since_last_earnings";
+//    private static final String COLUMN_TIME = "time";
+//    private static final String COLUMN_LIST = "list";
+
     private static final String COLUMN_ID = "id";
-    private static final String COLUMN_TICKER = "ticker";
-    private static final String COLUMN_DATE = "date";
-    private static final String COLUMN_PREDICTED_MOVE = "predicted_move";
-    private static final String COLUMN_ESP = "esp";
-    private static final String COLUMN_Z_SCORE = "z_score";
-    private static final String COLUMN_MOMENTUM = "momentum";
-    private static final String COLUMN_VGM = "vgm";
-    private static final String COLUMN_SINCE_LAST = "since_last_earnings";
-    private static final String COLUMN_TIME = "time";
-    private static final String COLUMN_LIST = "list";
+    private static final String  COLUMN_TICKER = "ticker";
+    private static final String  COLUMN_DATE  = "date";
+    private static final String  COLUMN_TIME  = "time";
+    private static final String  COLUMN_BELL = "bell";
+
+    private static final String  COLUMN_RECOM = "recom";
+    private static final String  COLUMN_PEG = "peg";
+    private static final String  COLUMN_PREDICTED_EPS = "predicted_eps";
+    private static final String  COLUMN_INSIDER_TRANS = "insider_trans";
+    private static final String  COLUMN_SHORT_FLOAT = "short_float";
+    private static final String  COLUMN_TARGET_PRICE = "target_price";
+    private static final String  COLUMN_PRICE = "price";
+    private static final String  COLUMN_PERFORMANCE_WEEK = "perf_week";
+
+    private static final String  COLUMN_FIRST_EPS = "first_eps";
+    private static final String  COLUMN_SECOND_EPS = "second_eps";
+    private static final String  COLUMN_THIRD_EPS = "third_eps";
+    private static final String  COLUMN_FOURTH_EPS = "fourth_eps";
+
+    private static final String  COLUMN_FIRST_FROM = "first_from";
+    private static final String  COLUMN_FIRST_TO = "first_to";
+    private static final String  COLUMN_SECOND_FROM = "second_from";
+    private static final String  COLUMN_SECOND_TO = "second_to";
+    private static final String  COLUMN_THIRD_FROM = "third_from";
+    private static final String  COLUMN_THIRD_TO = "third_to";
+    private static final String  COLUMN_FOURTH_FROM = "fourth_from";
+    private static final String  COLUMN_FOURTH_TO = "fourth_to";
+
+    private static final String COLUMN_GUIDANCE_MIN = "guidance_min";
+    private static final String COLUMN_GUIDANCE_MAX = "guidance_max";
+    private static final String COLUMN_GUIDANCE_EST = "guidance_est";
+
+    //Calculated Columns
+    private static final String  COLUMN_VOLATILITY = "volatility";
+    private static final String  COLUMN_SINCE_LAST = "since_last";
+
+    //Post Analysis Columns
+    private static final String  COLUMN_ACTUAL_EPS = "actual_eps";
+    private static final String  COLUMN_ACTUAL_FROM = "actual_from";
+    private static final String  COLUMN_ACTUAL_TO = "actual_to";
 
     //Post columns
-    private static final String COLUMN_EPS_SURPRISE = "eps_surprise";
-    private static final String COLUMN_CHANGE = "change";
+    //    private static final String COLUMN_EPS_SURPRISE = "eps_surprise";
+    //    private static final String COLUMN_CHANGE = "change";
 
 
     public MyDatabaseHelper(@Nullable Context context) {
@@ -45,21 +90,56 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         //Create report table
+//        String query =
+//                "CREATE TABLE " + TABLE_NAME +
+//                        " (" + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+//                        COLUMN_TICKER + " TEXT, " +
+//                        COLUMN_DATE + " DATE, " +
+//                        COLUMN_PREDICTED_MOVE + " INTEGER, " +
+//                        COLUMN_ESP + " DOUBLE, " +
+//                        COLUMN_Z_SCORE+ " INTEGER, " +
+//                        COLUMN_MOMENTUM + " TEXT, " +
+//                        COLUMN_VGM + " TEXT, " +
+//                        COLUMN_SINCE_LAST + " DOUBLE," +
+//                        COLUMN_TIME + " INTEGER," +
+//                        COLUMN_EPS_SURPRISE + " DOUBLE," +
+//                        COLUMN_CHANGE + " DOUBLE," +
+//                        COLUMN_LIST + " INTEGER);";
         String query =
                 "CREATE TABLE " + TABLE_NAME +
                         " (" + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                         COLUMN_TICKER + " TEXT, " +
                         COLUMN_DATE + " DATE, " +
-                        COLUMN_PREDICTED_MOVE + " INTEGER, " +
-                        COLUMN_ESP + " DOUBLE, " +
-                        COLUMN_Z_SCORE+ " INTEGER, " +
-                        COLUMN_MOMENTUM + " TEXT, " +
-                        COLUMN_VGM + " TEXT, " +
+                        COLUMN_BELL + " INTEGER, " +
+                        COLUMN_VOLATILITY + " DOUBLE, " +
+                        COLUMN_RECOM + " DOUBLE, " +
+                        COLUMN_PEG + " DOUBLE, " +
+                        COLUMN_PREDICTED_EPS + " DOUBLE, " +
                         COLUMN_SINCE_LAST + " DOUBLE," +
-                        COLUMN_TIME + " INTEGER," +
-                        COLUMN_EPS_SURPRISE + " DOUBLE," +
-                        COLUMN_CHANGE + " DOUBLE," +
-                        COLUMN_LIST + " INTEGER);";
+                        COLUMN_TIME + " TEXT," +
+                        COLUMN_INSIDER_TRANS + " DOUBLE," +
+                        COLUMN_SHORT_FLOAT + " DOUBLE," +
+                        COLUMN_TARGET_PRICE + " DOUBLE," +
+                        COLUMN_PRICE + " DOUBLE," +
+                        COLUMN_PERFORMANCE_WEEK + " DOUBLE," +
+                        COLUMN_FIRST_EPS+ " DOUBLE," +
+                        COLUMN_SECOND_EPS + " DOUBLE," +
+                        COLUMN_THIRD_EPS + " DOUBLE," +
+                        COLUMN_FOURTH_EPS + " DOUBLE," +
+                        COLUMN_FIRST_FROM + " DOUBLE," +
+                        COLUMN_FIRST_TO + " DOUBLE," +
+                        COLUMN_SECOND_FROM+ " DOUBLE," +
+                        COLUMN_SECOND_TO + " DOUBLE," +
+                        COLUMN_THIRD_FROM + " DOUBLE," +
+                        COLUMN_THIRD_TO + " DOUBLE," +
+                        COLUMN_FOURTH_FROM + " DOUBLE," +
+                        COLUMN_FOURTH_TO + " DOUBLE," +
+                        COLUMN_GUIDANCE_MIN + " DOUBLE," +
+                        COLUMN_GUIDANCE_MAX+ " DOUBLE," +
+                        COLUMN_GUIDANCE_EST + " DOUBLE," +
+                        COLUMN_ACTUAL_EPS + " DOUBLE," +
+                        COLUMN_ACTUAL_FROM + " DOUBLE," +
+                        COLUMN_ACTUAL_TO + " DOUBLE);";
         db.execSQL(query);
     }
 
@@ -69,21 +149,42 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public void addReport(String ticker, String date, double predictedMove, double esp, int zscore, String momentum, String vgm, double sinceLast, int time) {
+    public void addReport(String ticker, String date, int bell, String recom, String peg, String predictedEps, String time, String insiderTrans,
+                          String shortFloat, String targetPrice, String price, String perfWeek, String firstEps, String secondEps, String thirdEps,
+                          String fourthEps, String firstFrom, String firstTo, String secondFrom, String secondTo, String thirdFrom, String thirdTo,
+                          String fourthFrom, String fourthTo, String guidanceMin, String guidanceMax, String guidanceEst) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
 
         cv.put(COLUMN_TICKER, ticker);
-        cv.put(COLUMN_DATE, String.valueOf(date));
-        cv.put(COLUMN_PREDICTED_MOVE, predictedMove);
-        cv.put(COLUMN_ESP, esp);
-        cv.put(COLUMN_Z_SCORE, zscore);
-        cv.put(COLUMN_MOMENTUM, momentum);
-        cv.put(COLUMN_VGM, vgm);
-        cv.put(COLUMN_SINCE_LAST, sinceLast);
+        cv.put(COLUMN_DATE, date);
+        cv.put(COLUMN_BELL, bell);
+        cv.put(COLUMN_RECOM, recom);
+        cv.put(COLUMN_PEG, peg);
+        cv.put(COLUMN_PREDICTED_EPS, predictedEps);
         cv.put(COLUMN_TIME, time);
+        cv.put(COLUMN_INSIDER_TRANS, insiderTrans);
+        cv.put(COLUMN_SHORT_FLOAT, shortFloat);
+        cv.put(COLUMN_TARGET_PRICE, targetPrice);
+        cv.put(COLUMN_PRICE, price);
+        cv.put(COLUMN_PERFORMANCE_WEEK, perfWeek);
+        cv.put(COLUMN_FIRST_EPS, firstEps);
+        cv.put(COLUMN_SECOND_EPS, secondEps);
+        cv.put(COLUMN_THIRD_EPS, thirdEps);
+        cv.put(COLUMN_FOURTH_EPS, fourthEps);
+        cv.put(COLUMN_FIRST_FROM, firstFrom);
+        cv.put(COLUMN_FIRST_TO, firstTo);
+        cv.put(COLUMN_SECOND_FROM, secondFrom);
+        cv.put(COLUMN_SECOND_TO, secondTo);
+        cv.put(COLUMN_THIRD_FROM, thirdFrom);
+        cv.put(COLUMN_THIRD_TO, thirdTo);
+        cv.put(COLUMN_FOURTH_FROM, fourthFrom);
+        cv.put(COLUMN_FOURTH_TO, fourthTo);
+        cv.put(COLUMN_GUIDANCE_MIN, guidanceMin);
+        cv.put(COLUMN_GUIDANCE_MAX, guidanceMax);
+        cv.put(COLUMN_GUIDANCE_EST, guidanceEst);
 
-        long result = db.insert(TABLE_NAME, null, cv);
+        db.insert(TABLE_NAME, null, cv);
 
     }
 

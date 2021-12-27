@@ -313,11 +313,11 @@ public class HomeFragment extends Fragment {
         recent_tickers = new ArrayList<>();
         duplicateCheck();
 
-        for (int i = 0; i < ticker.size(); i++) {
-            if (!recent_tickers.contains(ticker.get(i)) && !inaccurate.contains(i)) {
-                db.addReport((String) ticker.get(i), (String) date.get(i), (Double) predicted.get(i), (Double) esp.get(i), (Integer) zscore.get(i), (String) momentum.get(i), (String) vgm.get(i), (Double) sinceLast.get(i), (Integer) time.get(i));
-            }
-        }
+//        for (int i = 0; i < ticker.size(); i++) {
+//            if (!recent_tickers.contains(ticker.get(i)) && !inaccurate.contains(i)) {
+//                db.addReport((String) ticker.get(i), (String) date.get(i), (Double) predicted.get(i), (Double) esp.get(i), (Integer) zscore.get(i), (String) momentum.get(i), (String) vgm.get(i), (Double) sinceLast.get(i), (Integer) time.get(i));
+//            }
+//        }
 
     }
 }

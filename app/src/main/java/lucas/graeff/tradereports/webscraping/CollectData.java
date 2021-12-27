@@ -5,20 +5,18 @@ import android.database.Cursor;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 
-import lucas.graeff.tradereports.AlarmReceiver;
-import lucas.graeff.tradereports.MainActivity;
 import lucas.graeff.tradereports.MyDatabaseHelper;
 
 public class CollectData implements Runnable{
@@ -42,16 +40,16 @@ public class CollectData implements Runnable{
     public ArrayList<String> price = new ArrayList<>();
     public ArrayList<String> perfWeek = new ArrayList<>();
 
+    public ArrayList<String> firstEps = new ArrayList<>();
+    public ArrayList<String> secondEps = new ArrayList<>();
+    public ArrayList<String> thirdEps = new ArrayList<>();
+    public ArrayList<String> fourthEps = new ArrayList<>();
 
+    public HashMap<Integer, ArrayList> priceChange = new HashMap<>();
 
-    public ArrayList<Double> firstEps = new ArrayList<>();
-    public ArrayList<Double> secondEps = new ArrayList<>();
-    public ArrayList<Double> thirdEps = new ArrayList<>();
-    public ArrayList<Double> fourthEps = new ArrayList<>();
-    public ArrayList<Double> firstEpsForecast = new ArrayList<>();
-    public ArrayList<Double> secondEpsForecast = new ArrayList<>();
-    public ArrayList<Double> thirdEpsForecast = new ArrayList<>();
-    public ArrayList<Double> fourthEpsForecast = new ArrayList<>();
+    public ArrayList<String> guidanceMin = new ArrayList<>();
+    public ArrayList<String> guidanceMax = new ArrayList<>();
+    public ArrayList<String> guidanceEst = new ArrayList<>();
 
 
 
@@ -69,7 +67,7 @@ public class CollectData implements Runnable{
         LocalDate date;
 
         //EarningsWhispers
-        //Collect ticker, date, bell time
+        //Collect ticker, date, bell time, report time
 
         String ticker;
         String time;
@@ -81,6 +79,10 @@ public class CollectData implements Runnable{
                 doc = Jsoup.connect("https://www.earningswhispers.com/calendar?sb=t&d=" + i + "&t=all&v=t").get();
                 cols = doc.getElementsByClass("ticker");
                 secCols = doc.getElementsByClass("time");
+
+                if(cols.size() != secCols.size()) {
+                    throw new Exception("demo");
+                }
 
                 //Get date
                 String[] dateText = (doc.getElementById("calbox").text()).split(",");
@@ -116,9 +118,11 @@ public class CollectData implements Runnable{
                     times.add(reportTime);
                     bells.add(bell);
 
+                    GuidanceHistory(ticker);
+
                 }
 
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -126,6 +130,7 @@ public class CollectData implements Runnable{
         //Finviz
 
         for (int i = 0; i < tickers.size(); i++) {
+            EpsHistory(tickers.get(i), bells.get(i), i);
             try {
                 doc = Jsoup.connect("https://finviz.com/quote.ashx?t=" + tickers.get(i)).get();
 //                Elements rows = doc.getElementsByClass("snapshot-table2").get(0).firstElementSibling().getElementsByTag("tr");
@@ -161,15 +166,31 @@ public class CollectData implements Runnable{
                 price.add("-");
                 recom.add("-");
             }
+
+            db.addReport(tickers.get(i), dates.get(i).toString(), bells.get(i), recom.get(i), peg.get(i), predictedEps.get(i), times.get(i), insiderTrans.get(i),
+                    shortFloat.get(i),
+                    targetPrice.get(i),
+                    price.get(i),
+                    perfWeek.get(i),
+                    firstEps.get(i),
+                    secondEps.get(i),
+                    thirdEps.get(i),
+                    fourthEps.get(i),
+                    priceChange.get(i).get(0).toString(),
+                    priceChange.get(i).get(1).toString(),
+                    priceChange.get(i).get(2).toString(),
+                    priceChange.get(i).get(3).toString(),
+                    priceChange.get(i).get(4).toString(),
+                    priceChange.get(i).get(5).toString(),
+                    priceChange.get(i).get(6).toString(),
+                    priceChange.get(i).get(7).toString(),
+                    guidanceMin.get(i),
+                    guidanceMax.get(i),
+                    guidanceEst.get(i));
+
         }
 
-        try {
-            doc = Jsoup.connect("https://api.benzinga.com/api/v2.1/calendar/earnings?token=1c2735820e984715bc4081264135cb90&parameters[date_from]=2016-12-24&parameters[date_to]=2021-12-24&parameters[tickers]=MU&pagesize=1000").get();
-            Elements rows = doc.getElementsByTag("date");
-            rows = rows;
-        } catch (Exception e) {
 
-        }
 
     }
 
@@ -177,36 +198,156 @@ public class CollectData implements Runnable{
         return tickers;
     }
 
-    public void EpsHistory(String ticker, int bell) {
-        //Nasdaq
-        //Get EPS and EPS Forecast for each quarter
-
-        ArrayList<Date> dates = new ArrayList<>();
-
-        SimpleDateFormat decodeFormatter = new SimpleDateFormat("dd/MM/yyyy");
+    public void EpsHistory(String ticker, int bell, int j) {
+        SimpleDateFormat decodeFormatter = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat encodeFormatter = new SimpleDateFormat("MMM dd, yyyy");
+        ArrayList<Date> quarterDates = new ArrayList<>();
 
         try {
-            doc = Jsoup.connect("https://api.benzinga.com/api/v2.1/calendar/earnings?token=1c2735820e984715bc4081264135cb90&parameters[date_from]=2016-12-24&parameters[date_to]=2021-12-24&parameters[tickers]=MU&pagesize=1000").get();
-            Elements rows = doc.getElementsByTag("date");
-            rows = rows;
+            LocalDate currentDate = LocalDate.now();
+            LocalDate sinceDate = currentDate.minusYears(2);
+            doc = Jsoup.connect("https://api.benzinga.com/api/v2.1/calendar/earnings?token=1c2735820e984715bc4081264135cb90&parameters[date_from]=" + sinceDate + "&parameters[date_to]=" + currentDate + "&parameters[tickers]=" + ticker + "&pagesize=1000").get();
+            Elements rows = doc.getElementsByTag("eps");
+            Elements earningsDates = doc.getElementsByTag("date");
+            firstEps.add(rows.get(0).text());
+            secondEps.add(rows.get(1).text());
+            thirdEps.add(rows.get(2).text());
+            fourthEps.add(rows.get(3).text());
+            Date firstDate = decodeFormatter.parse(earningsDates.get(0).text());
+            Date secondDate = decodeFormatter.parse(earningsDates.get(1).text());
+            Date thirdDate = decodeFormatter.parse(earningsDates.get(2).text());
+            Date fourthDate = decodeFormatter.parse(earningsDates.get(3).text());
+            quarterDates.add(firstDate);
+            quarterDates.add(secondDate);
+            quarterDates.add(thirdDate);
+            quarterDates.add(fourthDate);
 
-            dates.add(decodeFormatter.parse(rows.get(0).getElementsByTag("td").get(1).text()));
-            firstEps.add(Double.parseDouble(rows.get(0).getElementsByTag("td").get(2).text()));
-            firstEpsForecast.add(Double.parseDouble(rows.get(0).getElementsByTag("td").get(3).text()));
-            dates.add(decodeFormatter.parse(rows.get(1).getElementsByTag("td").get(1).text()));
-            secondEps.add(Double.parseDouble(rows.get(1).getElementsByTag("td").get(2).text()));
-            secondEpsForecast.add(Double.parseDouble(rows.get(1).getElementsByTag("td").get(3).text()));
-            dates.add(decodeFormatter.parse(rows.get(2).getElementsByTag("td").get(1).text()));
-            thirdEps.add(Double.parseDouble(rows.get(2).getElementsByTag("td").get(2).text()));
-            thirdEpsForecast.add(Double.parseDouble(rows.get(2).getElementsByTag("td").get(3).text()));
-            dates.add(decodeFormatter.parse(rows.get(3).getElementsByTag("td").get(1).text()));
-            fourthEps.add(Double.parseDouble(rows.get(3).getElementsByTag("td").get(2).text()));
-            fourthEpsForecast.add(Double.parseDouble(rows.get(3).getElementsByTag("td").get(3).text()));
+            PriceHistory(ticker, quarterDates, bell, j);
 
-        } catch (IOException | ParseException e) {
+        } catch (Exception e) {
+            firstEps.add("-");
+            secondEps.add("-");
+            thirdEps.add("-");
+            fourthEps.add("-");
+
+            ArrayList fromTo = new ArrayList<String>();
+            while(fromTo.size() < 8) {
+                fromTo.add("-");
+            }
+            priceChange.put(j, fromTo);
 
         }
+
     }
+
+    public void GuidanceHistory(String ticker) {
+        try {
+            LocalDate currentDate = LocalDate.now();
+            LocalDate sinceDate = currentDate.minusYears(2);
+            doc = Jsoup.connect("https://api.benzinga.com/api/v2.1/calendar/guidance?token=1c2735820e984715bc4081264135cb90&parameters[date_from]=" + sinceDate + "&parameters[date_to]=" + currentDate + "&parameters[tickers]=" + ticker + "&pagesize=1000").get();
+            Elements min = doc.getElementsByTag("eps_guidance_min");
+            Elements max = doc.getElementsByTag("eps_guidance_max");
+            Elements est = doc.getElementsByTag("eps_guidance_est");
+            guidanceMin.add(min.get(0).text());
+            guidanceMax.add(max.get(0).text());
+            guidanceEst.add(est.get(0).text());
+        } catch (Exception e) {
+            guidanceMin.add("-");
+            guidanceMax.add("-");
+            guidanceEst.add("-");
+        }
+
+    }
+
+    public void PriceHistory(String ticker, ArrayList<Date> quarterDates, int bell, int j) {
+        Calendar calendar = Calendar.getInstance();
+        ArrayList fromTo = new ArrayList<String>();
+        long fromDate;
+        long toDate;
+        int day;
+
+            try {
+                for (int i = 0; i < quarterDates.size(); i++) {
+                    if(bell == 0) {
+                        calendar.setTime(quarterDates.get(i));
+                        calendar.add(Calendar.DAY_OF_YEAR, -1);
+                        day = calendar.get(Calendar.DAY_OF_WEEK);
+                        if(day == 1) {
+                            calendar.add(Calendar.DAY_OF_YEAR, -2);
+                        }
+                        fromDate = (calendar.getTimeInMillis() / 1000);
+                        calendar.setTime(quarterDates.get(i));
+                        calendar.add(Calendar.DAY_OF_YEAR, 1);
+                    }
+                    else {
+                        calendar.setTime(quarterDates.get(i));
+                        fromDate = (calendar.getTimeInMillis() / 1000);
+                        day = calendar.get(Calendar.DAY_OF_WEEK);
+                        if(day == 5) {
+                            calendar.add(Calendar.DAY_OF_YEAR, 1);
+                        }
+                        calendar.add(Calendar.DAY_OF_YEAR, 2);
+
+                    }
+                    toDate = calendar.getTimeInMillis() / 1000;
+                    doc = Jsoup.connect("https://finance.yahoo.com/quote/" + ticker + "/history?period1=" + fromDate + "&period2=" + toDate + "&interval=1d&filter=history&frequency=1d&includeAdjustedClose=true").get();
+                    Elements cell = doc.getElementsByTag("td");
+                    if(bell == 0){
+                        //from
+                        fromTo.add(cell.get(11).text());
+                        //to
+                        fromTo.add(cell.get(4).text());
+                    }
+                    else {
+                        //from
+                        fromTo.add(cell.get(8).text());
+                        //to
+                        fromTo.add(cell.get(1).text());
+                    }
+
+                }
+
+            } catch (Exception e) {
+                while(fromTo.size() < 8) {
+                    fromTo.add("-");
+                }
+            }
+
+        priceChange.put(j, fromTo);
+
+    }//end PriceHistory
+
+
+//    public void EpsHistory(String ticker, int bell) {
+//        //Nasdaq
+//        //Get EPS and EPS Forecast for each quarter
+//
+//        ArrayList<Date> dates = new ArrayList<>();
+//
+//        SimpleDateFormat decodeFormatter = new SimpleDateFormat("dd/MM/yyyy");
+//
+//        try {
+//            doc = Jsoup.connect("https://api.benzinga.com/api/v2.1/calendar/earnings?token=1c2735820e984715bc4081264135cb90&parameters[date_from]=2016-12-24&parameters[date_to]=2021-12-24&parameters[tickers]=MU&pagesize=1000").get();
+//            Elements rows = doc.getElementsByTag("date");
+//            rows = rows;
+//
+//            dates.add(decodeFormatter.parse(rows.get(0).getElementsByTag("td").get(1).text()));
+//            firstEps.add(Double.parseDouble(rows.get(0).getElementsByTag("td").get(2).text()));
+//            firstEpsForecast.add(Double.parseDouble(rows.get(0).getElementsByTag("td").get(3).text()));
+//            dates.add(decodeFormatter.parse(rows.get(1).getElementsByTag("td").get(1).text()));
+//            secondEps.add(Double.parseDouble(rows.get(1).getElementsByTag("td").get(2).text()));
+//            secondEpsForecast.add(Double.parseDouble(rows.get(1).getElementsByTag("td").get(3).text()));
+//            dates.add(decodeFormatter.parse(rows.get(2).getElementsByTag("td").get(1).text()));
+//            thirdEps.add(Double.parseDouble(rows.get(2).getElementsByTag("td").get(2).text()));
+//            thirdEpsForecast.add(Double.parseDouble(rows.get(2).getElementsByTag("td").get(3).text()));
+//            dates.add(decodeFormatter.parse(rows.get(3).getElementsByTag("td").get(1).text()));
+//            fourthEps.add(Double.parseDouble(rows.get(3).getElementsByTag("td").get(2).text()));
+//            fourthEpsForecast.add(Double.parseDouble(rows.get(3).getElementsByTag("td").get(3).text()));
+//
+//        } catch (IOException | ParseException e) {
+//
+//        }
+//    }
 
     public void ChangeHistory(String ticker, ArrayList dates, int bell) {
         SimpleDateFormat encodeFormatter = new SimpleDateFormat("MMM dd, yyyy");
