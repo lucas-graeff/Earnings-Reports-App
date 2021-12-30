@@ -23,7 +23,7 @@ public class CollectData implements Runnable{
     private Context context;
     MyDatabaseHelper db;
     Document doc = null;
-
+    public ArrayList<String> recent_tickers = new ArrayList<>();
 
 
     public ArrayList<String> tickers = new ArrayList<>();
@@ -44,12 +44,15 @@ public class CollectData implements Runnable{
     public ArrayList<String> secondEps = new ArrayList<>();
     public ArrayList<String> thirdEps = new ArrayList<>();
     public ArrayList<String> fourthEps = new ArrayList<>();
+    public ArrayList<String> fifthEps = new ArrayList<>();
 
     public HashMap<Integer, ArrayList> priceChange = new HashMap<>();
 
     public ArrayList<String> guidanceMin = new ArrayList<>();
     public ArrayList<String> guidanceMax = new ArrayList<>();
     public ArrayList<String> guidanceEst = new ArrayList<>();
+
+    public ArrayList<String> volatility = new ArrayList<>();
 
 
 
@@ -73,6 +76,8 @@ public class CollectData implements Runnable{
         String time;
         Integer bell;
         String reportTime;
+
+        DuplicateCheck();
         //Number of days ahead to get earnings dates
         for(int i = 0; i < 9; i++) {
             try {
@@ -94,6 +99,15 @@ public class CollectData implements Runnable{
                 for(int j = 0; j < cols.size(); j++) {
                     reportTime = null;
                     ticker = cols.get(j).text();
+                    //TODO: Crashes program if on first run
+                    try {
+                        if(recent_tickers.contains(ticker)) {
+                            continue;
+                        }
+                    } catch (Exception e) {
+
+                    }
+
                     time = secCols.get(j).text();
                     if(time.contains("BMO")) {
                         bell = 0;
@@ -167,40 +181,35 @@ public class CollectData implements Runnable{
                 recom.add("-");
             }
 
-            db.addReport(tickers.get(i), dates.get(i).toString(), bells.get(i), recom.get(i), peg.get(i), predictedEps.get(i), times.get(i), insiderTrans.get(i),
-                    shortFloat.get(i),
-                    targetPrice.get(i),
-                    price.get(i),
-                    perfWeek.get(i),
-                    firstEps.get(i),
-                    secondEps.get(i),
-                    thirdEps.get(i),
-                    fourthEps.get(i),
-                    priceChange.get(i).get(0).toString(),
-                    priceChange.get(i).get(1).toString(),
-                    priceChange.get(i).get(2).toString(),
-                    priceChange.get(i).get(3).toString(),
-                    priceChange.get(i).get(4).toString(),
-                    priceChange.get(i).get(5).toString(),
-                    priceChange.get(i).get(6).toString(),
-                    priceChange.get(i).get(7).toString(),
-                    guidanceMin.get(i),
-                    guidanceMax.get(i),
-                    guidanceEst.get(i));
+                db.addReport(tickers.get(i), dates.get(i).toString(), bells.get(i), volatility.get(i), recom.get(i), peg.get(i), predictedEps.get(i), times.get(i), insiderTrans.get(i),
+                        shortFloat.get(i),
+                        targetPrice.get(i),
+                        price.get(i),
+                        perfWeek.get(i),
+                        firstEps.get(i),
+                        secondEps.get(i),
+                        thirdEps.get(i),
+                        fourthEps.get(i),
+                        fifthEps.get(i),
+                        priceChange.get(i).get(0).toString(),
+                        priceChange.get(i).get(1).toString(),
+                        priceChange.get(i).get(2).toString(),
+                        priceChange.get(i).get(3).toString(),
+                        priceChange.get(i).get(4).toString(),
+                        priceChange.get(i).get(5).toString(),
+                        priceChange.get(i).get(6).toString(),
+                        priceChange.get(i).get(7).toString(),
+                        guidanceMin.get(i),
+                        guidanceMax.get(i),
+                        guidanceEst.get(i));
 
         }
 
-
-
     }
 
-    public ArrayList<String> GetValue() {
-        return tickers;
-    }
 
     public void EpsHistory(String ticker, int bell, int j) {
         SimpleDateFormat decodeFormatter = new SimpleDateFormat("yyyy-MM-dd");
-        SimpleDateFormat encodeFormatter = new SimpleDateFormat("MMM dd, yyyy");
         ArrayList<Date> quarterDates = new ArrayList<>();
 
         try {
@@ -213,6 +222,7 @@ public class CollectData implements Runnable{
             secondEps.add(rows.get(1).text());
             thirdEps.add(rows.get(2).text());
             fourthEps.add(rows.get(3).text());
+            fifthEps.add(rows.get(4).text());
             Date firstDate = decodeFormatter.parse(earningsDates.get(0).text());
             Date secondDate = decodeFormatter.parse(earningsDates.get(1).text());
             Date thirdDate = decodeFormatter.parse(earningsDates.get(2).text());
@@ -229,6 +239,7 @@ public class CollectData implements Runnable{
             secondEps.add("-");
             thirdEps.add("-");
             fourthEps.add("-");
+            fifthEps.add("-");
 
             ArrayList fromTo = new ArrayList<String>();
             while(fromTo.size() < 8) {
@@ -264,7 +275,13 @@ public class CollectData implements Runnable{
         ArrayList fromTo = new ArrayList<String>();
         long fromDate;
         long toDate;
+        String from;
+        String to;
         int day;
+        double average = 0.00;
+        double total = 0.00;
+
+        ArrayList<Double> unfinishedVolatility = new ArrayList<>();
 
             try {
                 for (int i = 0; i < quarterDates.size(); i++) {
@@ -293,24 +310,33 @@ public class CollectData implements Runnable{
                     doc = Jsoup.connect("https://finance.yahoo.com/quote/" + ticker + "/history?period1=" + fromDate + "&period2=" + toDate + "&interval=1d&filter=history&frequency=1d&includeAdjustedClose=true").get();
                     Elements cell = doc.getElementsByTag("td");
                     if(bell == 0){
-                        //from
-                        fromTo.add(cell.get(11).text());
-                        //to
-                        fromTo.add(cell.get(4).text());
+                        from = cell.get(11).text();
+                        to = cell.get(4).text();
                     }
                     else {
-                        //from
-                        fromTo.add(cell.get(8).text());
-                        //to
-                        fromTo.add(cell.get(1).text());
+                        from = cell.get(8).text();
+                        to = cell.get(1).text();
                     }
+                    //from
+                    fromTo.add(from);
+                    //to
+                    fromTo.add(to);
+
+                    unfinishedVolatility.add(((((Double.parseDouble(to) - Double.parseDouble(from)) / Math.abs(Double.parseDouble(from))) * 100)));
 
                 }
+                for(int i = 0; i < unfinishedVolatility.size(); i++) {
+                    total += unfinishedVolatility.get(i);
+                    average = total / unfinishedVolatility.size();
+                }
+                volatility.add((average + "").substring(0,4));
 
             } catch (Exception e) {
+                System.out.println(e);
                 while(fromTo.size() < 8) {
                     fromTo.add("-");
                 }
+                volatility.add("-");
             }
 
         priceChange.put(j, fromTo);
@@ -318,58 +344,7 @@ public class CollectData implements Runnable{
     }//end PriceHistory
 
 
-//    public void EpsHistory(String ticker, int bell) {
-//        //Nasdaq
-//        //Get EPS and EPS Forecast for each quarter
-//
-//        ArrayList<Date> dates = new ArrayList<>();
-//
-//        SimpleDateFormat decodeFormatter = new SimpleDateFormat("dd/MM/yyyy");
-//
-//        try {
-//            doc = Jsoup.connect("https://api.benzinga.com/api/v2.1/calendar/earnings?token=1c2735820e984715bc4081264135cb90&parameters[date_from]=2016-12-24&parameters[date_to]=2021-12-24&parameters[tickers]=MU&pagesize=1000").get();
-//            Elements rows = doc.getElementsByTag("date");
-//            rows = rows;
-//
-//            dates.add(decodeFormatter.parse(rows.get(0).getElementsByTag("td").get(1).text()));
-//            firstEps.add(Double.parseDouble(rows.get(0).getElementsByTag("td").get(2).text()));
-//            firstEpsForecast.add(Double.parseDouble(rows.get(0).getElementsByTag("td").get(3).text()));
-//            dates.add(decodeFormatter.parse(rows.get(1).getElementsByTag("td").get(1).text()));
-//            secondEps.add(Double.parseDouble(rows.get(1).getElementsByTag("td").get(2).text()));
-//            secondEpsForecast.add(Double.parseDouble(rows.get(1).getElementsByTag("td").get(3).text()));
-//            dates.add(decodeFormatter.parse(rows.get(2).getElementsByTag("td").get(1).text()));
-//            thirdEps.add(Double.parseDouble(rows.get(2).getElementsByTag("td").get(2).text()));
-//            thirdEpsForecast.add(Double.parseDouble(rows.get(2).getElementsByTag("td").get(3).text()));
-//            dates.add(decodeFormatter.parse(rows.get(3).getElementsByTag("td").get(1).text()));
-//            fourthEps.add(Double.parseDouble(rows.get(3).getElementsByTag("td").get(2).text()));
-//            fourthEpsForecast.add(Double.parseDouble(rows.get(3).getElementsByTag("td").get(3).text()));
-//
-//        } catch (IOException | ParseException e) {
-//
-//        }
-//    }
-
-    public void ChangeHistory(String ticker, ArrayList dates, int bell) {
-        SimpleDateFormat encodeFormatter = new SimpleDateFormat("MMM dd, yyyy");
-
-        try {
-            doc = Jsoup.connect("https://finance.yahoo.com/quote/" + ticker + "/history").get();
-            Elements rows = doc.getElementsByTag("table").get(0).getElementsByTag("tbody").get(0).getElementsByTag("tr");
-            String firstDate = encodeFormatter.parse((String) dates.get(0)).toString();
-            for(int i = 0; i < rows.size(); i++) {
-                if(doc.getElementsByTag("td").get(0).firstElementSibling().text().contains(firstDate)) {
-                    System.out.println("Found" + firstDate);
-                }
-            }
-
-
-        } catch (Exception e) {
-
-        }
-    }
-
-    public ArrayList duplicateCheck() {
-        ArrayList recent_tickers = null;
+    public ArrayList DuplicateCheck() {
         Cursor cursor = db.getRecentTickers();
         while (cursor.moveToNext()) {
             recent_tickers.add(cursor.getString(0));

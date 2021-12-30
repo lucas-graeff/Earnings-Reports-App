@@ -54,6 +54,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
     private static final String  COLUMN_SECOND_EPS = "second_eps";
     private static final String  COLUMN_THIRD_EPS = "third_eps";
     private static final String  COLUMN_FOURTH_EPS = "fourth_eps";
+    private static final String  COLUMN_FIFTH_EPS = "fifth_eps";
 
     private static final String  COLUMN_FIRST_FROM = "first_from";
     private static final String  COLUMN_FIRST_TO = "first_to";
@@ -78,8 +79,13 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
     private static final String  COLUMN_ACTUAL_TO = "actual_to";
 
     //Post columns
-    //    private static final String COLUMN_EPS_SURPRISE = "eps_surprise";
-    //    private static final String COLUMN_CHANGE = "change";
+    private static final String COLUMN_EPS_SURPRISE = "eps_surprise";
+    private static final String COLUMN_CHANGE = "change";
+
+    //List column
+    private static final String  COLUMN_LIST = "list";
+
+
 
 
     public MyDatabaseHelper(@Nullable Context context) {
@@ -90,21 +96,6 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         //Create report table
-//        String query =
-//                "CREATE TABLE " + TABLE_NAME +
-//                        " (" + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-//                        COLUMN_TICKER + " TEXT, " +
-//                        COLUMN_DATE + " DATE, " +
-//                        COLUMN_PREDICTED_MOVE + " INTEGER, " +
-//                        COLUMN_ESP + " DOUBLE, " +
-//                        COLUMN_Z_SCORE+ " INTEGER, " +
-//                        COLUMN_MOMENTUM + " TEXT, " +
-//                        COLUMN_VGM + " TEXT, " +
-//                        COLUMN_SINCE_LAST + " DOUBLE," +
-//                        COLUMN_TIME + " INTEGER," +
-//                        COLUMN_EPS_SURPRISE + " DOUBLE," +
-//                        COLUMN_CHANGE + " DOUBLE," +
-//                        COLUMN_LIST + " INTEGER);";
         String query =
                 "CREATE TABLE " + TABLE_NAME +
                         " (" + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -126,6 +117,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
                         COLUMN_SECOND_EPS + " DOUBLE," +
                         COLUMN_THIRD_EPS + " DOUBLE," +
                         COLUMN_FOURTH_EPS + " DOUBLE," +
+                        COLUMN_FIFTH_EPS + " DOUBLE," +
                         COLUMN_FIRST_FROM + " DOUBLE," +
                         COLUMN_FIRST_TO + " DOUBLE," +
                         COLUMN_SECOND_FROM+ " DOUBLE," +
@@ -139,7 +131,10 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
                         COLUMN_GUIDANCE_EST + " DOUBLE," +
                         COLUMN_ACTUAL_EPS + " DOUBLE," +
                         COLUMN_ACTUAL_FROM + " DOUBLE," +
-                        COLUMN_ACTUAL_TO + " DOUBLE);";
+                        COLUMN_ACTUAL_TO + " DOUBLE," +
+                        COLUMN_EPS_SURPRISE + " DOUBLE," +
+                        COLUMN_CHANGE + " DOUBLE," +
+                        COLUMN_LIST + " INTEGER DEFAULT 0);";
         db.execSQL(query);
     }
 
@@ -149,9 +144,9 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public void addReport(String ticker, String date, int bell, String recom, String peg, String predictedEps, String time, String insiderTrans,
+    public void addReport(String ticker, String date, int bell, String volatlity, String recom, String peg, String predictedEps, String time, String insiderTrans,
                           String shortFloat, String targetPrice, String price, String perfWeek, String firstEps, String secondEps, String thirdEps,
-                          String fourthEps, String firstFrom, String firstTo, String secondFrom, String secondTo, String thirdFrom, String thirdTo,
+                          String fourthEps, String fifthEps, String firstFrom, String firstTo, String secondFrom, String secondTo, String thirdFrom, String thirdTo,
                           String fourthFrom, String fourthTo, String guidanceMin, String guidanceMax, String guidanceEst) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
@@ -159,6 +154,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
         cv.put(COLUMN_TICKER, ticker);
         cv.put(COLUMN_DATE, date);
         cv.put(COLUMN_BELL, bell);
+        cv.put(COLUMN_VOLATILITY, volatlity);
         cv.put(COLUMN_RECOM, recom);
         cv.put(COLUMN_PEG, peg);
         cv.put(COLUMN_PREDICTED_EPS, predictedEps);
@@ -171,7 +167,9 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
         cv.put(COLUMN_FIRST_EPS, firstEps);
         cv.put(COLUMN_SECOND_EPS, secondEps);
         cv.put(COLUMN_THIRD_EPS, thirdEps);
+        cv.put(COLUMN_THIRD_EPS, thirdEps);
         cv.put(COLUMN_FOURTH_EPS, fourthEps);
+        cv.put(COLUMN_FIFTH_EPS, fifthEps);
         cv.put(COLUMN_FIRST_FROM, firstFrom);
         cv.put(COLUMN_FIRST_TO, firstTo);
         cv.put(COLUMN_SECOND_FROM, secondFrom);

@@ -127,7 +127,7 @@ public class PostFragment extends Fragment {
 
     public void Display(RecyclerView recyclerView) {
         //Display
-        postAdapter = new PostAdapter(getActivity().getApplicationContext(), report_id, report_ticker, report_date, report_predictedMove, report_esp, report_sinceLast, report_zscore, report_momentum, report_vgm, report_time, report_surprise, report_change);
+//        postAdapter = new PostAdapter(getActivity().getApplicationContext(), report_id, report_ticker, report_date, report_predictedMove, report_esp, report_sinceLast, report_zscore, report_momentum, report_vgm, report_time, report_surprise, report_change);
         recyclerView.setAdapter(postAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext()));
     }
