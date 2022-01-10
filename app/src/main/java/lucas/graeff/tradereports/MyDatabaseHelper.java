@@ -147,7 +147,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
     public void addReport(String ticker, String date, int bell, String volatlity, String recom, String peg, String predictedEps, String time, String insiderTrans,
                           String shortFloat, String targetPrice, String price, String perfWeek, String firstEps, String secondEps, String thirdEps,
                           String fourthEps, String fifthEps, String firstFrom, String firstTo, String secondFrom, String secondTo, String thirdFrom, String thirdTo,
-                          String fourthFrom, String fourthTo, String guidanceMin, String guidanceMax, String guidanceEst) {
+                          String fourthFrom, String fourthTo, String guidanceMin, String guidanceMax, String guidanceEst, int flag) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
 
@@ -182,7 +182,12 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
         cv.put(COLUMN_GUIDANCE_MAX, guidanceMax);
         cv.put(COLUMN_GUIDANCE_EST, guidanceEst);
 
-        db.insert(TABLE_NAME, null, cv);
+        if(flag == 1) {
+            db.update(TABLE_NAME, cv, "id=?", new String[] {String.valueOf(FindId(ticker))});
+        }
+        else {
+            db.insert(TABLE_NAME, null, cv);
+        }
 
     }
 
@@ -206,12 +211,12 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
     }
 
     //Add post earnings info
-    public void AddPost(int id, double surprise, double change) {
+    public void AddPost(int id, String from, String to, double change, String eps, String surpriseEps) {
         SQLiteDatabase db = this.getWritableDatabase();
 
-        String query = "UPDATE reports SET eps_surprise = ? , change = ? WHERE id = ?;";
+        String query = "UPDATE reports SET actual_from = ? , actual_to = ?, change = ?, actual_eps = ?, eps_surprise = ? WHERE id = ?;";
 
-        db.execSQL(query, new String[] {String.valueOf(surprise), String.valueOf(change), String.valueOf(id)});
+        db.execSQL(query, new String[] {String.valueOf(from), String.valueOf(to), String.valueOf(change), String.valueOf(eps), String.valueOf(surpriseEps), String.valueOf(id)});
     }
 
     public void UpdateList(int id, int list) {
@@ -221,6 +226,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
 
         db.execSQL(query, new String[] {String.valueOf(list), String.valueOf(id)});
     }
+
 
 
     public Cursor getRecentTickers() {
@@ -236,7 +242,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
 
 
     public Cursor readAllData() {
-        String query = "SELECT * FROM " + TABLE_NAME + " WHERE reports.date > date('now', '-1 day')";
+        String query = "SELECT * FROM " + TABLE_NAME + " WHERE reports.date > date('now', '-1 day') ORDER BY date ASC";
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cursor = null;
@@ -263,7 +269,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
             query = "SELECT * FROM " + TABLE_NAME + " WHERE change NOT NULL AND list = 1  ORDER BY date DESC LIMIT 50";
         }
         else {
-            query = "SELECT * FROM " + TABLE_NAME + " WHERE change NOT NULL  ORDER BY date DESC LIMIT 50";
+            query = "SELECT * FROM " + TABLE_NAME + " WHERE change NOT NULL ORDER BY date DESC LIMIT 50";
         }
 
         SQLiteDatabase db = this.getReadableDatabase();

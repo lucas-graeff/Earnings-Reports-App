@@ -20,9 +20,12 @@ import android.widget.Switch;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import lucas.graeff.tradereports.AlarmReceiver;
 import lucas.graeff.tradereports.CustomAdapter;
 import lucas.graeff.tradereports.MyDatabaseHelper;
 import lucas.graeff.tradereports.R;
+import lucas.graeff.tradereports.webscraping.CollectData;
+import lucas.graeff.tradereports.webscraping.PostAnalysis;
 import lucas.graeff.tradereports.webscraping.WebInfo;
 import lucas.graeff.tradereports.webscraping.WebInfoZacks;
 
@@ -94,8 +97,22 @@ public class HomeFragment extends Fragment {
         //First app use
         prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
         if (prefs.getBoolean("firstrun", true)) {
-            retrieveWebInfo();
-
+            CollectData collectData = new CollectData(getActivity().getApplicationContext());
+            Thread thread = new Thread(collectData);
+            thread.start();
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            PostAnalysis postAnalysis = new PostAnalysis(getActivity().getApplicationContext());
+            thread = new Thread(postAnalysis);
+            thread.start();
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             prefs.edit().putBoolean("firstrun", false).commit();
         }
 
@@ -103,7 +120,7 @@ public class HomeFragment extends Fragment {
         Display(recyclerView);
 
         //Create dropdown menu
-        String[] dropdownOptions = { "No filter", "Minimum Risk", "Medium Risk", "Shorting" };
+        String[] dropdownOptions = { "No filter", "Strict", "Guidance", "Raising EPS", "Positive Change"};
         Spinner dropdown = (Spinner) view.findViewById(R.id.dropdown_menu);
         ArrayAdapter<String> dropdownAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, dropdownOptions);
         dropdownAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -117,23 +134,18 @@ public class HomeFragment extends Fragment {
                         ReadData(db.readAllData());
                         break;
                     case 1:
-                        query = "SELECT * FROM reports\n" +
-                                "WHERE z_score < 3\n" +
-                                "AND esp >= 0" +
-                                " AND reports.date > date('now', '-1 day')" +
-                                " AND predicted_move > 1" +
-                                " AND (reports.vgm = 'A' OR reports.vgm = 'B')";
+                        query = "SELECT * FROM reports WHERE reports.date > date('now', '-1 day') AND recom < 2.5 AND perf_week > 0 AND predicted_eps > 0  AND peg < 1 ORDER BY date ASC";
                         ReadData(db.readQuery(query));
                         break;
                     case 2:
-                        ReadData(db.readFilteredData());
+                        query = "SELECT * FROM reports WHERE reports.date > date('now', '-1 day') AND guidance_est > guidance_min ORDER BY date ASC";
+                        ReadData(db.readQuery(query));
                         break;
                     case 3:
-                        query = "SELECT * FROM reports\n" +
-                                "WHERE z_score > 3\n" +
-                                "AND esp <= 0" +
-                                " AND reports.date > date('now', '-1 day')" +
-                                " AND predicted_move > 1";
+                        query = "SELECT * FROM reports WHERE reports.date > date('now', '-1 day') AND first_eps > second_eps AND second_eps > third_eps AND third_eps > fourth_eps AND fourth_eps > fifth_eps ORDER BY date ASC";
+                        ReadData(db.readQuery(query));
+                    case 4:
+                        query = "SELECT * FROM reports WHERE reports.date > date('now', '-1 day') AND first_from > first_to AND second_to > second_from AND third_to > third_from AND fourth_to > fourth_from ORDER BY date ASC";
                         ReadData(db.readQuery(query));
                 }
                 Display(recyclerView);
@@ -250,144 +262,4 @@ public class HomeFragment extends Fragment {
         }
     }
 
-
-    public void retrieveWebInfo() {
-        HashMap<Integer, ArrayList<String>> colInfo;
-        ArrayList tempArray;
-
-        //Start web scrape of Upcoming
-        WebInfo webInfo = new WebInfo();
-        Thread thread = new Thread(webInfo);
-        thread.start();
-        try {
-            thread.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        //Initialize arrays for storage
-        ArrayList ticker = new ArrayList<String>();
-        ArrayList predicted = new ArrayList<Double>();
-        ArrayList sinceLast = new ArrayList<Double>();
-        ArrayList zscore = new ArrayList<Integer>();
-        ArrayList momentum = new ArrayList<String>();
-        ArrayList vgm = new ArrayList<String>();
-        ArrayList esp = new ArrayList<Double>();
-        ArrayList date = new ArrayList<>();
-        ArrayList time = new ArrayList<>();
-
-        //Get stocksearning.com info
-        colInfo = webInfo.getValue();
-
-        //Parse and prepare
-        for (int i = 1; i < colInfo.size() + 1; i++) {
-            tempArray = colInfo.get(i);
-            ticker.add(tempArray.get(0).toString().substring(0, 4).replace("-", ""));
-            predicted.add(Double.parseDouble((tempArray.get(2).toString().replace("%", ""))));
-            sinceLast.add(Double.parseDouble((tempArray.get(3).toString().replace("%", ""))));
-        }
-
-        //Web scrape Zacks.com
-        WebInfoZacks webInfoZacks = new WebInfoZacks(ticker);
-        Thread threadZacks = new Thread(webInfoZacks);
-        threadZacks.start();
-        try {
-            threadZacks.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        //Assign scraped info
-        colInfo = webInfoZacks.getValue();
-
-        //Parse and prepare scraped info for database insertion
-
-        //For marking inaccurate stocks
-        ArrayList inaccurate = new ArrayList<>();
-        boolean marked = false;
-
-        for (int i = 0; i < colInfo.size(); i++) {
-            marked = false;
-            tempArray = colInfo.get(i);
-
-            try {
-                zscore.add(Integer.parseInt(tempArray.get(0).toString()));
-            } catch (Exception e) {
-                zscore.add(6);
-                marked = true;
-            }
-
-            try {
-                momentum.add(tempArray.get(1).toString());
-            } catch (Exception e) {
-                momentum.add("-");
-                marked = true;
-            }
-
-            try {
-                vgm.add(tempArray.get(2).toString());
-            } catch (Exception e) {
-                vgm.add("-");
-                marked = true;
-            }
-
-            try {
-                if (tempArray.get(3).toString().contains("NA")) {
-                    esp.add(0.00);
-                } else {
-                    esp.add(Double.parseDouble(tempArray.get(3).toString().replace("%", "")));
-                }
-            } catch (Exception e) {
-                esp.add(0.00);
-                marked = true;
-            }
-
-            try {
-                if (tempArray.get(4).toString().contains("AMC")) {
-                    time.add(1);
-                } else {
-                    time.add(0);
-                }
-            } catch (Exception e) {
-                time.add(0);
-                marked = true;
-            }
-
-            try {
-                String tempDate = "";
-                String tempDateArray[] = tempArray.get(4).toString().replace("*BMO", "").replace("*AMC", "").split("/");
-                tempDate += "20" + tempDateArray[2] + "-";
-                if(tempDateArray[0].length() == 1) {
-                    tempDate += "0";
-                }
-                tempDate += tempDateArray[0] + "-";
-                if(tempDateArray[1].length() == 1) {
-                    tempDate += "0";
-                }
-                tempDate += tempDateArray[1];
-
-                date.add(tempDate);
-
-
-            } catch (Exception e) {
-                date.add("NANANA");
-                marked = true;
-            }
-
-            if(marked) {
-                inaccurate.add(i);
-            }
-
-        }
-
-        recent_tickers = new ArrayList<>();
-        duplicateCheck();
-
-//        for (int i = 0; i < ticker.size(); i++) {
-//            if (!recent_tickers.contains(ticker.get(i)) && !inaccurate.contains(i)) {
-//                db.addReport((String) ticker.get(i), (String) date.get(i), (Double) predicted.get(i), (Double) esp.get(i), (Integer) zscore.get(i), (String) momentum.get(i), (String) vgm.get(i), (Double) sinceLast.get(i), (Integer) time.get(i));
-//            }
-//        }
-
-    }
 }

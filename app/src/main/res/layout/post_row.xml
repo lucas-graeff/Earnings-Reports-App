@@ -197,26 +197,15 @@
                 app:layout_constraintTop_toBottomOf="@+id/txt_insider" />
 
             <TextView
-                android:id="@+id/label_change"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Change"
-                android:textSize="16sp"
-                app:layout_constraintEnd_toEndOf="@+id/label_performance"
-                app:layout_constraintStart_toStartOf="@+id/label_performance"
-                app:layout_constraintTop_toBottomOf="@+id/txt_insider" />
-
-            <TextView
                 android:id="@+id/label_short"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="Short"
                 android:textSize="16sp"
-                app:layout_constraintEnd_toEndOf="@+id/label_eps_est"
-                app:layout_constraintStart_toStartOf="@+id/label_eps_est"
-                app:layout_constraintTop_toBottomOf="@+id/txt_eps_est" />
+                app:layout_constraintEnd_toEndOf="@+id/label_price"
+                app:layout_constraintStart_toStartOf="@+id/label_price"
+                app:layout_constraintTop_toBottomOf="@+id/txt_price" />
 
             <TextView
                 android:id="@+id/label_performance"
@@ -225,17 +214,47 @@
                 android:text="Perform"
                 android:textSize="16sp"
                 app:layout_constraintEnd_toEndOf="@+id/label_volatility"
-                app:layout_constraintStart_toStartOf="@+id/label_volatility"
                 app:layout_constraintTop_toTopOf="@+id/label_short" />
 
             <TextView
                 android:id="@+id/label_eps_est"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:text="Est EPS"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toEndOf="@+id/label_volatility"
+                app:layout_constraintTop_toTopOf="@+id/label_since_last" />
+
+            <TextView
+                android:id="@+id/label_eps_actual"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Actual EPS"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toEndOf="@+id/label_volatility"
+                app:layout_constraintStart_toStartOf="@+id/label_volatility"
+                app:layout_constraintTop_toBottomOf="@+id/txt_eps_est" />
+
+            <TextView
+                android:id="@+id/label_change"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Change"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toEndOf="@+id/label_since_last"
+                app:layout_constraintStart_toStartOf="@+id/label_since_last"
+                app:layout_constraintTop_toBottomOf="@+id/txt_eps_est" />
+
+            <TextView
+                android:id="@+id/label_price"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="24dp"
                 android:layout_marginTop="4dp"
                 android:layout_marginEnd="128dp"
-                android:text="EPS Est"
+                android:text="Price"
                 android:textSize="16sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/label_recom"
@@ -245,11 +264,11 @@
                 android:id="@+id/label_volatility"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
+                android:layout_marginStart="32dp"
                 android:layout_marginTop="4dp"
                 android:text="Volatility"
                 android:textSize="16sp"
-                app:layout_constraintStart_toEndOf="@+id/label_eps_est"
+                app:layout_constraintStart_toEndOf="@+id/label_price"
                 app:layout_constraintTop_toTopOf="@+id/ticker_txt" />
 
             <TextView
@@ -313,16 +332,6 @@
                 app:layout_constraintTop_toBottomOf="@+id/label_since_last" />
 
             <TextView
-                android:id="@+id/txt_change"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="#.##%"
-                android:textSize="20sp"
-                app:layout_constraintEnd_toEndOf="@+id/label_change"
-                app:layout_constraintStart_toStartOf="@+id/label_change"
-                app:layout_constraintTop_toBottomOf="@+id/label_since_last" />
-
-            <TextView
                 android:id="@+id/txt_short"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -339,7 +348,6 @@
                 android:text="#.##%"
                 android:textSize="20sp"
                 app:layout_constraintEnd_toEndOf="@+id/label_performance"
-                app:layout_constraintStart_toStartOf="@+id/label_performance"
                 app:layout_constraintTop_toBottomOf="@+id/label_performance" />
 
             <TextView
@@ -348,9 +356,37 @@
                 android:layout_height="wrap_content"
                 android:text="#.##%"
                 android:textSize="20sp"
-                app:layout_constraintEnd_toEndOf="@+id/label_eps_est"
-                app:layout_constraintStart_toStartOf="@+id/label_eps_est"
-                app:layout_constraintTop_toBottomOf="@+id/label_eps_est" />
+                app:layout_constraintEnd_toEndOf="@+id/label_performance"
+                app:layout_constraintTop_toBottomOf="@+id/label_since_last" />
+
+            <TextView
+                android:id="@+id/txt_eps_actual"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="#.##%"
+                android:textSize="20sp"
+                app:layout_constraintEnd_toEndOf="@+id/label_performance"
+                app:layout_constraintTop_toBottomOf="@+id/label_eps_actual" />
+
+            <TextView
+                android:id="@+id/txt_change"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="#.##%"
+                android:textSize="20sp"
+                app:layout_constraintEnd_toEndOf="@+id/label_change"
+                app:layout_constraintStart_toStartOf="@+id/label_change"
+                app:layout_constraintTop_toBottomOf="@+id/label_eps_actual" />
+
+            <TextView
+                android:id="@+id/txt_price"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="###.##"
+                android:textSize="20sp"
+                app:layout_constraintEnd_toEndOf="@+id/label_price"
+                app:layout_constraintStart_toStartOf="@+id/label_price"
+                app:layout_constraintTop_toBottomOf="@+id/label_price" />
 
             <TextView
                 android:id="@+id/txt_volatility"

@@ -54,6 +54,9 @@ public class CollectData implements Runnable{
 
     public ArrayList<String> volatility = new ArrayList<>();
 
+    // 0 = Add 1 = Update
+    public ArrayList<Integer> updateFlag = new ArrayList<>();
+
 
 
 
@@ -85,6 +88,7 @@ public class CollectData implements Runnable{
                 cols = doc.getElementsByClass("ticker");
                 secCols = doc.getElementsByClass("time");
 
+                //TODO: Account for desynced columns (esp in time column)
                 if(cols.size() != secCols.size()) {
                     throw new Exception("demo");
                 }
@@ -99,10 +103,14 @@ public class CollectData implements Runnable{
                 for(int j = 0; j < cols.size(); j++) {
                     reportTime = null;
                     ticker = cols.get(j).text();
-                    //TODO: Crashes program if on first run
+
+                    //Mark for add or update to db
                     try {
                         if(recent_tickers.contains(ticker)) {
-                            continue;
+                            updateFlag.add(1);
+                        }
+                        else {
+                            updateFlag.add(0);
                         }
                     } catch (Exception e) {
 
@@ -181,7 +189,15 @@ public class CollectData implements Runnable{
                 recom.add("-");
             }
 
-                db.addReport(tickers.get(i), dates.get(i).toString(), bells.get(i), volatility.get(i), recom.get(i), peg.get(i), predictedEps.get(i), times.get(i), insiderTrans.get(i),
+                db.addReport(tickers.get(i),
+                        dates.get(i).toString(),
+                        bells.get(i),
+                        volatility.get(i),
+                        recom.get(i),
+                        peg.get(i),
+                        predictedEps.get(i),
+                        times.get(i),
+                        insiderTrans.get(i),
                         shortFloat.get(i),
                         targetPrice.get(i),
                         price.get(i),
@@ -201,7 +217,8 @@ public class CollectData implements Runnable{
                         priceChange.get(i).get(7).toString(),
                         guidanceMin.get(i),
                         guidanceMax.get(i),
-                        guidanceEst.get(i));
+                        guidanceEst.get(i),
+                        updateFlag.get(i));
 
         }
 
@@ -246,6 +263,7 @@ public class CollectData implements Runnable{
                 fromTo.add("-");
             }
             priceChange.put(j, fromTo);
+            volatility.add("-");
 
         }
 

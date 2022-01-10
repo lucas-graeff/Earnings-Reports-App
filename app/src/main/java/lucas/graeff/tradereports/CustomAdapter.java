@@ -136,7 +136,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
 
     public class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener  {
 
-        TextView ticker_txt, date_txt, recom_txt, est_esp_txt, volatility_txt, insider_txt, short_txt, perform_txt, peg_txt, since_last_txt,
+        TextView ticker_txt, price_txt, date_txt, recom_txt, est_esp_txt, volatility_txt, insider_txt, short_txt, perform_txt, peg_txt, since_last_txt,
                 guidance_txt, guidance_est_txt, time_txt, quarter_first, quarter_second, quarter_third, quarter_fourth;
         ImageView bell_img, first_change, second_change, third_change, fourth_change;
         CardView card_view;
@@ -144,6 +144,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
         public MyViewHolder (@NonNull View itemView) {
             super(itemView);
             ticker_txt = itemView.findViewById(R.id.ticker_txt);
+            price_txt = itemView.findViewById(R.id.txt_price);
             date_txt = itemView.findViewById(R.id.date_txt);
             recom_txt = itemView.findViewById(R.id.txt_recom);
             est_esp_txt = itemView.findViewById(R.id.txt_eps_est);
@@ -156,6 +157,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
             guidance_txt = itemView.findViewById(R.id.txt_guidance);
             guidance_est_txt = itemView.findViewById(R.id.txt_guidance_est);
             time_txt = itemView.findViewById(R.id.txt_time);
+
 
             //Quarter stats
             quarter_first = itemView.findViewById(R.id.quarter_first);
@@ -230,6 +232,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
 
         //Right side
         holder.recom_txt.setText(String.valueOf(report_recom.get(position)));
+        holder.price_txt.setText(String.valueOf(report_price.get(position)));
         holder.est_esp_txt.setText(String.valueOf(report_predicted_eps.get(position)));
         holder.volatility_txt.setText(report_volatility.get(position) + "%");
         holder.insider_txt.setText(String.valueOf(report_insider_trans.get(position)));
@@ -330,6 +333,18 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
             }
             else {
                 holder.recom_txt.setTextColor(Color.parseColor("#FF4CAF50"));
+            }
+        } catch (Exception e) {
+
+        }
+
+        //Price
+        try {
+            if(Double.parseDouble(report_price.get(position).toString()) > Double.parseDouble(report_target_price.get(position).toString())) {
+                holder.price_txt.setTextColor(Color.parseColor("#FFE91E63"));
+            }
+            else {
+                holder.price_txt.setTextColor(Color.parseColor("#FF4CAF50"));
             }
         } catch (Exception e) {
 

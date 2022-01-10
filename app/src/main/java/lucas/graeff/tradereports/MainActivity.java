@@ -24,6 +24,7 @@ import lucas.graeff.tradereports.fragments.HomeFragment;
 import lucas.graeff.tradereports.fragments.ListFragment;
 import lucas.graeff.tradereports.fragments.PostFragment;
 import lucas.graeff.tradereports.webscraping.CollectData;
+import lucas.graeff.tradereports.webscraping.PostAnalysis;
 import lucas.graeff.tradereports.webscraping.WebInfo;
 
 public class MainActivity extends FragmentActivity {
@@ -47,14 +48,6 @@ public class MainActivity extends FragmentActivity {
 
         createNotificationChannel();
         setAlarm();
-       CollectData collectData = new CollectData(this);
-        Thread thread = new Thread(collectData);
-        thread.start();
-        try {
-            thread.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
 
         //Initiate fragments
         homeFragment = new HomeFragment();
