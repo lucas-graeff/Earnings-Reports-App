@@ -25,7 +25,6 @@ import lucas.graeff.tradereports.fragments.ListFragment;
 import lucas.graeff.tradereports.fragments.PostFragment;
 import lucas.graeff.tradereports.webscraping.CollectData;
 import lucas.graeff.tradereports.webscraping.PostAnalysis;
-import lucas.graeff.tradereports.webscraping.WebInfo;
 
 public class MainActivity extends FragmentActivity {
     MyDatabaseHelper db;

@@ -57,7 +57,7 @@
                 android:layout_width="16dp"
                 android:layout_height="16dp"
                 app:layout_constraintEnd_toEndOf="@+id/first_change"
-                app:layout_constraintTop_toTopOf="@+id/quarter_third"
+                app:layout_constraintTop_toTopOf="@+id/quarter_second"
                 app:srcCompat="@drawable/ic_baseline_blank_24" />
 
             <ImageView
@@ -65,15 +65,15 @@
                 android:layout_width="16dp"
                 android:layout_height="16dp"
                 app:layout_constraintEnd_toEndOf="@+id/first_change"
-                app:layout_constraintTop_toTopOf="@+id/quarter_fourth"
+                app:layout_constraintTop_toTopOf="@+id/quarter_first"
                 app:srcCompat="@drawable/ic_baseline_blank_24" />
 
             <ImageView
                 android:id="@+id/first_change"
                 android:layout_width="16dp"
                 android:layout_height="16dp"
-                app:layout_constraintStart_toEndOf="@+id/quarter_first"
-                app:layout_constraintTop_toTopOf="@+id/quarter_first"
+                app:layout_constraintStart_toEndOf="@+id/quarter_fourth"
+                app:layout_constraintTop_toTopOf="@+id/quarter_fourth"
                 app:srcCompat="@drawable/ic_baseline_blank_24" />
 
             <ImageView
@@ -82,19 +82,9 @@
                 android:layout_height="16dp"
                 android:layout_marginStart="3dp"
                 android:layout_marginTop="18dp"
-                app:layout_constraintStart_toEndOf="@+id/quarter_second"
+                app:layout_constraintStart_toEndOf="@+id/quarter_third"
                 app:layout_constraintTop_toBottomOf="@+id/third_change"
                 app:srcCompat="@drawable/ic_baseline_blank_24" />
-
-            <TextView
-                android:id="@+id/quarter_third"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Q"
-                android:textSize="16sp"
-                app:layout_constraintStart_toStartOf="@+id/quarter_fourth"
-                app:layout_constraintTop_toBottomOf="@+id/quarter_fourth" />
 
             <TextView
                 android:id="@+id/quarter_second"
@@ -102,12 +92,22 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="Q"
-                android:textSize="20sp"
-                app:layout_constraintStart_toStartOf="@+id/quarter_third"
-                app:layout_constraintTop_toBottomOf="@+id/quarter_third" />
+                android:textSize="16sp"
+                app:layout_constraintStart_toStartOf="@+id/quarter_first"
+                app:layout_constraintTop_toBottomOf="@+id/quarter_first" />
 
             <TextView
-                android:id="@+id/quarter_first"
+                android:id="@+id/quarter_third"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Q"
+                android:textSize="20sp"
+                app:layout_constraintStart_toStartOf="@+id/quarter_second"
+                app:layout_constraintTop_toBottomOf="@+id/quarter_second" />
+
+            <TextView
+                android:id="@+id/quarter_fourth"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
@@ -115,11 +115,11 @@
                 android:textSize="24sp"
                 app:layout_constraintEnd_toStartOf="@+id/second_change"
                 app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="@+id/quarter_second"
-                app:layout_constraintTop_toBottomOf="@+id/quarter_second" />
+                app:layout_constraintStart_toStartOf="@+id/quarter_third"
+                app:layout_constraintTop_toBottomOf="@+id/quarter_third" />
 
             <TextView
-                android:id="@+id/quarter_fourth"
+                android:id="@+id/quarter_first"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"

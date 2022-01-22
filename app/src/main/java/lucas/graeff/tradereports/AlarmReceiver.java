@@ -14,14 +14,11 @@ import java.util.HashMap;
 
 import lucas.graeff.tradereports.webscraping.CollectData;
 import lucas.graeff.tradereports.webscraping.PostAnalysis;
-import lucas.graeff.tradereports.webscraping.PostEarnings;
-import lucas.graeff.tradereports.webscraping.WebInfo;
-import lucas.graeff.tradereports.webscraping.WebInfoZacks;
 
 public class AlarmReceiver extends BroadcastReceiver {
     MyDatabaseHelper db;
 
-    private Context context;
+    public Context context;
     public AlarmReceiver(Context context) {
         this.context = context;
     }
@@ -61,6 +58,46 @@ public class AlarmReceiver extends BroadcastReceiver {
 
         NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(context);
         notificationManagerCompat.notify(123, builder.build());
+    }
+
+    public void upcomingReportsNotifications(Context context) {
+        NotificationCompat.Builder builder;
+        ArrayList ticker, time;
+        String day;
+        Cursor cursor;
+
+        for(int i = 0; i < 2; i++) {
+            ticker = new ArrayList();
+            time = new ArrayList();
+            //Today After hours
+            if(i == 0){
+                day = "today";
+                cursor = db.readQuery("SELECT ticker, time FROM REPORTS WHERE list = \"1\"AND bell = \"1\"  AND reports.date = date('now') ");
+            }
+            //Tomorrow morning
+            else {
+                day = "tomorrow";
+                cursor = db.readQuery("SELECT ticker, time FROM REPORTS WHERE list = \"1\"AND bell = \"0\"  AND reports.date = date('now', \"+1 days\") ");
+            }
+            while(cursor.moveToNext()) {
+                ticker.add(cursor.getString(0));
+                time.add(cursor.getString(1));
+            }
+            for(int j = 0; j < ticker.size(); j++) {
+                builder = new NotificationCompat.Builder(context, "stocks")
+                        .setSmallIcon(R.drawable.ic_launcher_foreground)
+                        .setContentTitle("Upcoming Earnings Report")
+                        .setContentText(ticker.get(j) + " is reporting at " + time.get(j) + "" + day)
+                        .setAutoCancel(true)
+                        .setDefaults(NotificationCompat.DEFAULT_ALL)
+                        .setPriority(NotificationCompat.PRIORITY_HIGH);
+
+                NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(context);
+                notificationManagerCompat.notify(123, builder.build());
+            }
+        }
+
+
     }
 
 

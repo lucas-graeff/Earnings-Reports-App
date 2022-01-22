@@ -71,6 +71,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
 
     //Calculated Columns
     private static final String  COLUMN_VOLATILITY = "volatility";
+    private static final String  COLUMN_AVERAGE = "average";
     private static final String  COLUMN_SINCE_LAST = "since_last";
 
     //Post Analysis Columns
@@ -103,6 +104,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
                         COLUMN_DATE + " DATE, " +
                         COLUMN_BELL + " INTEGER, " +
                         COLUMN_VOLATILITY + " DOUBLE, " +
+                        COLUMN_AVERAGE + " DOUBLE, " +
                         COLUMN_RECOM + " DOUBLE, " +
                         COLUMN_PEG + " DOUBLE, " +
                         COLUMN_PREDICTED_EPS + " DOUBLE, " +
@@ -144,7 +146,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public void addReport(String ticker, String date, int bell, String volatlity, String recom, String peg, String predictedEps, String time, String insiderTrans,
+    public void addReport(String ticker, String date, int bell, String volatlity, String average, String recom, String peg, String predictedEps, String sinceLast, String time, String insiderTrans,
                           String shortFloat, String targetPrice, String price, String perfWeek, String firstEps, String secondEps, String thirdEps,
                           String fourthEps, String fifthEps, String firstFrom, String firstTo, String secondFrom, String secondTo, String thirdFrom, String thirdTo,
                           String fourthFrom, String fourthTo, String guidanceMin, String guidanceMax, String guidanceEst, int flag) {
@@ -155,40 +157,54 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
         cv.put(COLUMN_DATE, date);
         cv.put(COLUMN_BELL, bell);
         cv.put(COLUMN_VOLATILITY, volatlity);
+        cv.put(COLUMN_AVERAGE, average);
         cv.put(COLUMN_RECOM, recom);
         cv.put(COLUMN_PEG, peg);
         cv.put(COLUMN_PREDICTED_EPS, predictedEps);
+        cv.put(COLUMN_SINCE_LAST, sinceLast);
         cv.put(COLUMN_TIME, time);
         cv.put(COLUMN_INSIDER_TRANS, insiderTrans);
         cv.put(COLUMN_SHORT_FLOAT, shortFloat);
         cv.put(COLUMN_TARGET_PRICE, targetPrice);
         cv.put(COLUMN_PRICE, price);
         cv.put(COLUMN_PERFORMANCE_WEEK, perfWeek);
-        cv.put(COLUMN_FIRST_EPS, firstEps);
-        cv.put(COLUMN_SECOND_EPS, secondEps);
-        cv.put(COLUMN_THIRD_EPS, thirdEps);
-        cv.put(COLUMN_THIRD_EPS, thirdEps);
-        cv.put(COLUMN_FOURTH_EPS, fourthEps);
-        cv.put(COLUMN_FIFTH_EPS, fifthEps);
-        cv.put(COLUMN_FIRST_FROM, firstFrom);
-        cv.put(COLUMN_FIRST_TO, firstTo);
-        cv.put(COLUMN_SECOND_FROM, secondFrom);
-        cv.put(COLUMN_SECOND_TO, secondTo);
-        cv.put(COLUMN_THIRD_FROM, thirdFrom);
-        cv.put(COLUMN_THIRD_TO, thirdTo);
-        cv.put(COLUMN_FOURTH_FROM, fourthFrom);
-        cv.put(COLUMN_FOURTH_TO, fourthTo);
-        cv.put(COLUMN_GUIDANCE_MIN, guidanceMin);
-        cv.put(COLUMN_GUIDANCE_MAX, guidanceMax);
-        cv.put(COLUMN_GUIDANCE_EST, guidanceEst);
+
 
         if(flag == 1) {
             db.update(TABLE_NAME, cv, "id=?", new String[] {String.valueOf(FindId(ticker))});
         }
         else {
+            cv.put(COLUMN_FIRST_EPS, firstEps);
+            cv.put(COLUMN_SECOND_EPS, secondEps);
+            cv.put(COLUMN_THIRD_EPS, thirdEps);
+            cv.put(COLUMN_THIRD_EPS, thirdEps);
+            cv.put(COLUMN_FOURTH_EPS, fourthEps);
+            cv.put(COLUMN_FIFTH_EPS, fifthEps);
+            cv.put(COLUMN_FIRST_FROM, firstFrom);
+            cv.put(COLUMN_FIRST_TO, firstTo);
+            cv.put(COLUMN_SECOND_FROM, secondFrom);
+            cv.put(COLUMN_SECOND_TO, secondTo);
+            cv.put(COLUMN_THIRD_FROM, thirdFrom);
+            cv.put(COLUMN_THIRD_TO, thirdTo);
+            cv.put(COLUMN_FOURTH_FROM, fourthFrom);
+            cv.put(COLUMN_FOURTH_TO, fourthTo);
+            cv.put(COLUMN_GUIDANCE_MIN, guidanceMin);
+            cv.put(COLUMN_GUIDANCE_MAX, guidanceMax);
+            cv.put(COLUMN_GUIDANCE_EST, guidanceEst);
             db.insert(TABLE_NAME, null, cv);
         }
 
+    }
+
+    public Cursor NotificationReports() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = null;
+
+        String query =
+                "SELECT ticker, date FROM reports WHERE reports.date > date('now', '-1 week')";
+        cursor = db.rawQuery(query, null);
+
+        return cursor;
     }
 
     //Find the id related to the ticker within last 2 weeks
@@ -234,7 +250,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
         Cursor cursor = null;
 
         String query =
-                "SELECT ticker, date FROM reports WHERE reports.date > date('now', '-1 month')";
+                "SELECT ticker, date FROM reports WHERE reports.date > date('now', '-1 week')";
         cursor = db.rawQuery(query, null);
 
         return cursor;

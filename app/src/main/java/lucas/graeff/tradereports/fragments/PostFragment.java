@@ -19,8 +19,6 @@ import lucas.graeff.tradereports.CustomAdapter;
 import lucas.graeff.tradereports.MyDatabaseHelper;
 import lucas.graeff.tradereports.PostAdapter;
 import lucas.graeff.tradereports.R;
-import lucas.graeff.tradereports.webscraping.PostEarnings;
-import lucas.graeff.tradereports.webscraping.WebInfo;
 
 
 public class PostFragment extends Fragment {

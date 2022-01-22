@@ -24,7 +24,7 @@ public class ListFragment extends Fragment {
     CustomAdapter customAdapter;
     CustomAdapter.RecyclerViewClickListener listener;
 
-    ArrayList<String> report_ticker, report_date, recent_tickers, report_bell, report_volatility,
+    ArrayList<String> report_ticker, report_date, recent_tickers, report_bell, report_volatility, report_average,
             report_recom,
             report_peg,
             report_predicted_eps,
@@ -81,7 +81,7 @@ public class ListFragment extends Fragment {
     public void Display(RecyclerView recyclerView) {
         //Display
         setOnClickListener();
-        customAdapter = new CustomAdapter(getActivity().getApplicationContext(), listener, report_id, report_ticker, report_date, report_bell, report_volatility, report_recom, report_peg, report_predicted_eps, report_since_last, report_time, report_insider_trans, report_short, report_target_price, report_price, report_performace, report_first_eps, report_second_eps, report_third_eps, report_fourth_eps, report_fifth_eps, report_first_from, report_first_to, report_second_from, report_second_to, report_third_from, report_third_to, report_fourth_from, report_fourth_to, report_guidance_min, report_guidance_max, report_guidance_est, report_list);
+        customAdapter = new CustomAdapter(getActivity().getApplicationContext(), listener, report_id, report_ticker, report_date, report_bell, report_volatility, report_average, report_recom, report_peg, report_predicted_eps, report_since_last, report_time, report_insider_trans, report_short, report_target_price, report_price, report_performace, report_first_eps, report_second_eps, report_third_eps, report_fourth_eps, report_fifth_eps, report_first_from, report_first_to, report_second_from, report_second_to, report_third_from, report_third_to, report_fourth_from, report_fourth_to, report_guidance_min, report_guidance_max, report_guidance_est, report_list);
         recyclerView.setAdapter(customAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext()));
     }
@@ -103,6 +103,7 @@ public class ListFragment extends Fragment {
         report_date = new ArrayList<>();
         report_bell = new ArrayList<>();
         report_volatility = new ArrayList<>();
+        report_average = new ArrayList<>();
         report_recom = new ArrayList<>();
         report_peg = new ArrayList<>();
         report_predicted_eps = new ArrayList<>();
@@ -139,33 +140,34 @@ public class ListFragment extends Fragment {
             report_date.add(cursor.getString(2));
             report_bell.add(cursor.getString(3));
             report_volatility.add(cursor.getString(4));
-            report_recom.add(cursor.getString(5));
-            report_peg.add(cursor.getString(6));
-            report_predicted_eps.add(cursor.getString(7));
-            report_since_last.add(cursor.getDouble(8));
-            report_time.add(cursor.getString(9));
-            report_insider_trans.add(cursor.getString(10));
-            report_short.add(cursor.getString(11));
-            report_target_price.add(cursor.getString(12));
-            report_price.add(cursor.getString(13));
-            report_performace.add(cursor.getString(14));
-            report_first_eps.add(cursor.getString(15));
-            report_second_eps.add(cursor.getString(16));
-            report_third_eps.add(cursor.getString(17));
-            report_fourth_eps.add(cursor.getString(18));
-            report_fifth_eps.add(cursor.getString(19));
-            report_first_from.add(cursor.getString(20));
-            report_first_to.add(cursor.getString(21));
-            report_second_from.add(cursor.getString(22));
-            report_second_to.add(cursor.getString(23));
-            report_third_from.add(cursor.getString(24));
-            report_third_to.add(cursor.getString(25));
-            report_fourth_from.add(cursor.getString(26));
-            report_fourth_to.add(cursor.getString(27));
-            report_guidance_min.add(cursor.getString(28));
-            report_guidance_max.add(cursor.getString(29));
-            report_guidance_est.add(cursor.getString(30));
-            report_list.add(cursor.getInt(36));
+            report_average.add(cursor.getString(5));
+            report_recom.add(cursor.getString(6));
+            report_peg.add(cursor.getString(7));
+            report_predicted_eps.add(cursor.getString(8));
+            report_since_last.add(cursor.getDouble(9));
+            report_time.add(cursor.getString(10));
+            report_insider_trans.add(cursor.getString(11));
+            report_short.add(cursor.getString(12));
+            report_target_price.add(cursor.getString(13));
+            report_price.add(cursor.getString(14));
+            report_performace.add(cursor.getString(15));
+            report_first_eps.add(cursor.getString(16));
+            report_second_eps.add(cursor.getString(17));
+            report_third_eps.add(cursor.getString(18));
+            report_fourth_eps.add(cursor.getString(19));
+            report_fifth_eps.add(cursor.getString(20));
+            report_first_from.add(cursor.getString(21));
+            report_first_to.add(cursor.getString(22));
+            report_second_from.add(cursor.getString(23));
+            report_second_to.add(cursor.getString(24));
+            report_third_from.add(cursor.getString(25));
+            report_third_to.add(cursor.getString(26));
+            report_fourth_from.add(cursor.getString(27));
+            report_fourth_to.add(cursor.getString(28));
+            report_guidance_min.add(cursor.getString(29));
+            report_guidance_max.add(cursor.getString(30));
+            report_guidance_est.add(cursor.getString(31));
+            report_list.add(cursor.getInt(37));
 
         }
     }

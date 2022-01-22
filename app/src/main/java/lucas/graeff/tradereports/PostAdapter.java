@@ -167,10 +167,10 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.MyViewHolder> 
             actual_eps = itemView.findViewById(R.id.txt_eps_actual);
 
             //Quarter stats
-            quarter_first = itemView.findViewById(R.id.quarter_first);
-            quarter_second = itemView.findViewById(R.id.quarter_second);
-            quarter_third = itemView.findViewById(R.id.quarter_third);
-            quarter_fourth = itemView.findViewById(R.id.quarter_fourth);
+            quarter_first = itemView.findViewById(R.id.quarter_fourth);
+            quarter_second = itemView.findViewById(R.id.quarter_third);
+            quarter_third = itemView.findViewById(R.id.quarter_second);
+            quarter_fourth = itemView.findViewById(R.id.quarter_first);
             first_change = itemView.findViewById(R.id.first_change);
             second_change = itemView.findViewById(R.id.second_change);
             third_change = itemView.findViewById(R.id.third_change);
