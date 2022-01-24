@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 
@@ -17,6 +18,7 @@ import lucas.graeff.tradereports.CustomAdapter;
 import lucas.graeff.tradereports.MyDatabaseHelper;
 import lucas.graeff.tradereports.PostAdapter;
 import lucas.graeff.tradereports.R;
+import lucas.graeff.tradereports.SharedFunctions;
 
 public class ListFragment extends Fragment {
 
@@ -171,5 +173,6 @@ public class ListFragment extends Fragment {
 
         }
     }
+
 
 }

@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Switch;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,6 +20,7 @@ import lucas.graeff.tradereports.CustomAdapter;
 import lucas.graeff.tradereports.MyDatabaseHelper;
 import lucas.graeff.tradereports.PostAdapter;
 import lucas.graeff.tradereports.R;
+import lucas.graeff.tradereports.SharedFunctions;
 
 
 public class PostFragment extends Fragment {
@@ -28,6 +30,7 @@ public class PostFragment extends Fragment {
     ArrayList<String> recent_tickers;
     ArrayList<String> report_bell;
     ArrayList<String> report_volatility;
+    ArrayList<String> report_average;
     ArrayList<String> report_recom;
     ArrayList<String> report_peg;
     ArrayList<String> report_predicted_eps;
@@ -101,6 +104,7 @@ public class PostFragment extends Fragment {
         db = new MyDatabaseHelper(getActivity().getApplicationContext());
         RecyclerView recyclerView = view.findViewById(R.id.recyclerView);
         filter_switch = view.findViewById(R.id.filter_switch);
+        TextView winrate = view.findViewById(R.id.txt_winrate);
 
         if(switchState == 1){
             filter_switch.setChecked(true);
@@ -108,6 +112,8 @@ public class PostFragment extends Fragment {
 
         ReadData(db.PostInfo(false));
         Display(recyclerView);
+        winrate.setText(SharedFunctions.WinRate(db, "select count(b.id) as Winners, count(*) as TotalCount from REPORTS a left join REPORTS b on b.id = a.id and b.change > 0 WHERE a.list = 1 AND a.change NOT NULL") + "%");
+
 
         filter_switch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
@@ -130,6 +136,7 @@ public class PostFragment extends Fragment {
         report_date = new ArrayList<>();
         report_bell = new ArrayList<>();
         report_volatility = new ArrayList<>();
+        report_average = new ArrayList<>();
         report_recom = new ArrayList<>();
         report_peg = new ArrayList<>();
         report_predicted_eps = new ArrayList<>();
@@ -157,8 +164,8 @@ public class PostFragment extends Fragment {
         report_guidance_max = new ArrayList<>();
         report_guidance_est = new ArrayList<>();
         report_list = new ArrayList<>();
-        report_change = new ArrayList<>();
         report_actual_eps = new ArrayList<>();
+        report_change = new ArrayList<>();
 
 
         Cursor cursor = data;
@@ -168,42 +175,43 @@ public class PostFragment extends Fragment {
             report_date.add(cursor.getString(2));
             report_bell.add(cursor.getString(3));
             report_volatility.add(cursor.getString(4));
-            report_recom.add(cursor.getString(5));
-            report_peg.add(cursor.getString(6));
-            report_predicted_eps.add(cursor.getString(7));
-            report_since_last.add(cursor.getDouble(8));
-            report_time.add(cursor.getString(9));
-            report_insider_trans.add(cursor.getString(10));
-            report_short.add(cursor.getString(11));
-            report_target_price.add(cursor.getString(12));
-            report_price.add(cursor.getString(13));
-            report_performace.add(cursor.getString(14));
-            report_first_eps.add(cursor.getString(15));
-            report_second_eps.add(cursor.getString(16));
-            report_third_eps.add(cursor.getString(17));
-            report_fourth_eps.add(cursor.getString(18));
-            report_fifth_eps.add(cursor.getString(19));
-            report_first_from.add(cursor.getString(20));
-            report_first_to.add(cursor.getString(21));
-            report_second_from.add(cursor.getString(22));
-            report_second_to.add(cursor.getString(23));
-            report_third_from.add(cursor.getString(24));
-            report_third_to.add(cursor.getString(25));
-            report_fourth_from.add(cursor.getString(26));
-            report_fourth_to.add(cursor.getString(27));
-            report_guidance_min.add(cursor.getString(28));
-            report_guidance_max.add(cursor.getString(29));
-            report_guidance_est.add(cursor.getString(30));
-            report_list.add(cursor.getInt(36));
-            report_actual_eps.add(cursor.getString(31));
-            report_change.add(cursor.getString(35));
+            report_average.add(cursor.getString(5));
+            report_recom.add(cursor.getString(6));
+            report_peg.add(cursor.getString(7));
+            report_predicted_eps.add(cursor.getString(8));
+            report_since_last.add(cursor.getDouble(9));
+            report_time.add(cursor.getString(10));
+            report_insider_trans.add(cursor.getString(11));
+            report_short.add(cursor.getString(12));
+            report_target_price.add(cursor.getString(13));
+            report_price.add(cursor.getString(14));
+            report_performace.add(cursor.getString(15));
+            report_first_eps.add(cursor.getString(16));
+            report_second_eps.add(cursor.getString(17));
+            report_third_eps.add(cursor.getString(18));
+            report_fourth_eps.add(cursor.getString(19));
+            report_fifth_eps.add(cursor.getString(20));
+            report_first_from.add(cursor.getString(21));
+            report_first_to.add(cursor.getString(22));
+            report_second_from.add(cursor.getString(23));
+            report_second_to.add(cursor.getString(24));
+            report_third_from.add(cursor.getString(25));
+            report_third_to.add(cursor.getString(26));
+            report_fourth_from.add(cursor.getString(27));
+            report_fourth_to.add(cursor.getString(28));
+            report_guidance_min.add(cursor.getString(29));
+            report_guidance_max.add(cursor.getString(30));
+            report_guidance_est.add(cursor.getString(31));
+            report_actual_eps.add(cursor.getString(32));
+            report_change.add(cursor.getString(36));
+            report_list.add(cursor.getInt(37));
 
         }
     }
 
     public void Display(RecyclerView recyclerView) {
         //Display
-        postAdapter = new PostAdapter(getActivity().getApplicationContext(), listener, report_id, report_ticker, report_date, report_bell, report_volatility, report_recom, report_peg, report_predicted_eps, report_since_last, report_time, report_insider_trans, report_short, report_target_price, report_price, report_performace, report_first_eps, report_second_eps, report_third_eps, report_fourth_eps, report_fifth_eps, report_first_from, report_first_to, report_second_from, report_second_to, report_third_from, report_third_to, report_fourth_from, report_fourth_to, report_guidance_min, report_guidance_max, report_guidance_est, report_list, report_actual_eps, report_change);
+        postAdapter = new PostAdapter(getActivity().getApplicationContext(), listener, report_id, report_ticker, report_date, report_bell, report_volatility, report_average, report_recom, report_peg, report_predicted_eps, report_since_last, report_time, report_insider_trans, report_short, report_target_price, report_price, report_performace, report_first_eps, report_second_eps, report_third_eps, report_fourth_eps, report_fifth_eps, report_first_from, report_first_to, report_second_from, report_second_to, report_third_from, report_third_to, report_fourth_from, report_fourth_to, report_guidance_min, report_guidance_max, report_guidance_est, report_list, report_actual_eps, report_change);
         recyclerView.setAdapter(postAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext()));
     }

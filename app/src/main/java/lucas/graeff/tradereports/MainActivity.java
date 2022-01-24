@@ -130,7 +130,7 @@ public class MainActivity extends FragmentActivity {
     }
 
     private void setAlarm() {
-//        Intent intent = new Intent(this, AlarmReceiver.class);
+        Intent intent = new Intent(this, AlarmReceiver.class);
 
         AlarmManager alarmMgr;
         PendingIntent alarmIntent;

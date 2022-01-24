@@ -8,9 +8,12 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 import lucas.graeff.tradereports.MyDatabaseHelper;
 
@@ -29,10 +32,10 @@ public class PostAnalysis implements Runnable{
         Date today = new Date();
         Cursor cursor;
         int id, bell, day;
-        String ticker, from, to, eps, surpriseEps, dateString;
+        String ticker, from, to, eps, surpriseEps, dateStringFrom, dateStringTo;
         Date date;
         long fromDate, toDate;
-        double change;
+        String change;
         Calendar calendar;
         Document doc;
 
@@ -45,9 +48,11 @@ public class PostAnalysis implements Runnable{
                 id = cursor.getInt(0);
                 ticker = cursor.getString(1);
                 date = decodeFormatter.parse(cursor.getString(2));
-                dateString = cursor.getString(2);
+                dateStringFrom = cursor.getString(2);
                 bell = cursor.getInt(3);
                 calendar = Calendar.getInstance();
+
+                dateStringTo = decodeFormatter.format(new Date());
 
 
                 calendar.setTime(date);
@@ -84,10 +89,10 @@ public class PostAnalysis implements Runnable{
                 }
 
                 //Calculate change
-                change = (Double.parseDouble(to) - Double.parseDouble(from)) / Math.abs(Double.parseDouble(from)) * 100.0;
+                change = String.format("%.2f", (Double.parseDouble(to) - Double.parseDouble(from)) / Math.abs(Double.parseDouble(from)) * 100.0);
 
                 //Get eps
-                doc = Jsoup.connect("https://api.benzinga.com/api/v2.1/calendar/earnings?token=1c2735820e984715bc4081264135cb90&parameters[date_from]=" + dateString + "&parameters[date_to]=" + dateString + "&parameters[tickers]=" + ticker + "&pagesize=1000").get();
+                doc = Jsoup.connect("https://api.benzinga.com/api/v2.1/calendar/earnings?token=1c2735820e984715bc4081264135cb90&parameters[date_from]=" + dateStringFrom + "&parameters[date_to]=" + dateStringTo + "&parameters[tickers]=" + ticker + "&pagesize=1000").get();
                 Elements rows = doc.getElementsByTag("eps");
                 Elements cols = doc.getElementsByTag("eps_surprise");
                 eps = rows.get(0).text();
@@ -96,7 +101,7 @@ public class PostAnalysis implements Runnable{
                 db.AddPost(id, from, to, change, eps, surpriseEps);
 
             } catch (Exception e) {
-                System.out.println(e);
+                System.out.println("Post Scrape:" + e.getStackTrace());
             }
 
         }

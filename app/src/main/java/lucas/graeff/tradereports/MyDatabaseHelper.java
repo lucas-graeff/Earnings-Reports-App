@@ -156,8 +156,6 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
         cv.put(COLUMN_TICKER, ticker);
         cv.put(COLUMN_DATE, date);
         cv.put(COLUMN_BELL, bell);
-        cv.put(COLUMN_VOLATILITY, volatlity);
-        cv.put(COLUMN_AVERAGE, average);
         cv.put(COLUMN_RECOM, recom);
         cv.put(COLUMN_PEG, peg);
         cv.put(COLUMN_PREDICTED_EPS, predictedEps);
@@ -174,6 +172,8 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
             db.update(TABLE_NAME, cv, "id=?", new String[] {String.valueOf(FindId(ticker))});
         }
         else {
+            cv.put(COLUMN_VOLATILITY, volatlity);
+            cv.put(COLUMN_AVERAGE, average);
             cv.put(COLUMN_FIRST_EPS, firstEps);
             cv.put(COLUMN_SECOND_EPS, secondEps);
             cv.put(COLUMN_THIRD_EPS, thirdEps);
@@ -227,7 +227,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
     }
 
     //Add post earnings info
-    public void AddPost(int id, String from, String to, double change, String eps, String surpriseEps) {
+    public void AddPost(int id, String from, String to, String change, String eps, String surpriseEps) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         String query = "UPDATE reports SET actual_from = ? , actual_to = ?, change = ?, actual_eps = ?, eps_surprise = ? WHERE id = ?;";
@@ -250,7 +250,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
         Cursor cursor = null;
 
         String query =
-                "SELECT ticker, date FROM reports WHERE reports.date > date('now', '-1 week')";
+                "SELECT ticker, date FROM reports WHERE reports.date > date('now', '-7 days')";
         cursor = db.rawQuery(query, null);
 
         return cursor;

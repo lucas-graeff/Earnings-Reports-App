@@ -93,7 +93,7 @@ public class CollectData implements Runnable{
         Integer bell;
         String reportTime;
 
-        DuplicateCheck();
+        recent_tickers = DuplicateCheck();
 
         //Number of days ahead to get earnings dates
         for(int i = 0; i < 7; i++) {
@@ -464,7 +464,6 @@ public class CollectData implements Runnable{
 
     public ArrayList DuplicateCheck() {
         Cursor cursor = db.getRecentTickers();
-//        db.close();
         while (cursor.moveToNext()) {
             recent_tickers.add(cursor.getString(0));
         }

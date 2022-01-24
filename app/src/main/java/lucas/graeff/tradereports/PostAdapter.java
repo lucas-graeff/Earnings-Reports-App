@@ -18,7 +18,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.MyViewHolder> 
 
     private Context context;
     private MyDatabaseHelper db;
-    private ArrayList report_id, report_ticker, report_date, recent_tickers, report_bell, report_volatility,
+    private ArrayList report_id, report_ticker, report_date, recent_tickers, report_bell, report_volatility, report_average,
             report_recom,
             report_peg,
             report_predicted_eps,
@@ -54,6 +54,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.MyViewHolder> 
                          ArrayList report_date,
                          ArrayList report_bell,
                          ArrayList report_volatility,
+                         ArrayList report_average,
                          ArrayList report_recom,
                          ArrayList report_peg,
                          ArrayList report_predicted_eps,
@@ -92,6 +93,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.MyViewHolder> 
         this.report_date = report_date;
         this.report_bell = report_bell;
         this.report_volatility = report_volatility;
+        this.report_average = report_average;
         this.report_recom = report_recom;
         this.report_peg = report_peg;
         this.report_predicted_eps = report_predicted_eps;
@@ -140,9 +142,9 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.MyViewHolder> 
 
     public class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener  {
 
-        TextView ticker_txt, price_txt, date_txt, recom_txt, est_esp_txt, volatility_txt, insider_txt, short_txt, perform_txt, peg_txt, since_last_txt,
-                guidance_txt, guidance_est_txt, time_txt, quarter_first, quarter_second, quarter_third, quarter_fourth, change_txt, actual_eps;
-        ImageView bell_img, first_change, second_change, third_change, fourth_change;
+        TextView ticker_txt, price_txt, date_txt, recom_txt, est_esp_txt, volatility_txt, average_txt, insider_txt, short_txt, perform_txt, peg_txt, since_last_txt,
+                guidance_txt, guidance_est_txt, time_txt, quarter_first, quarter_second, quarter_third, quarter_fourth, first_change, second_change, third_change, fourth_change,change_txt, actual_eps;
+        ImageView bell_img;
         CardView card_view;
 
         public MyViewHolder (@NonNull View itemView) {
@@ -153,6 +155,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.MyViewHolder> 
             recom_txt = itemView.findViewById(R.id.txt_recom);
             est_esp_txt = itemView.findViewById(R.id.txt_eps_est);
             volatility_txt = itemView.findViewById(R.id.txt_volatility);
+            average_txt = itemView.findViewById(R.id.txt_average);
             insider_txt = itemView.findViewById(R.id.txt_insider);
             short_txt = itemView.findViewById(R.id.txt_short);
             perform_txt = itemView.findViewById(R.id.txt_perform);
@@ -162,19 +165,21 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.MyViewHolder> 
             guidance_est_txt = itemView.findViewById(R.id.txt_guidance_est);
             time_txt = itemView.findViewById(R.id.txt_time);
 
-            //Post
-            change_txt = itemView.findViewById(R.id.txt_change);
-            actual_eps = itemView.findViewById(R.id.txt_eps_actual);
 
             //Quarter stats
-            quarter_first = itemView.findViewById(R.id.quarter_fourth);
-            quarter_second = itemView.findViewById(R.id.quarter_third);
-            quarter_third = itemView.findViewById(R.id.quarter_second);
-            quarter_fourth = itemView.findViewById(R.id.quarter_first);
-            first_change = itemView.findViewById(R.id.first_change);
-            second_change = itemView.findViewById(R.id.second_change);
-            third_change = itemView.findViewById(R.id.third_change);
-            fourth_change = itemView.findViewById(R.id.fourth_change);
+            quarter_first = itemView.findViewById(R.id.quarter_first);
+            quarter_second = itemView.findViewById(R.id.quarter_second);
+            quarter_third = itemView.findViewById(R.id.quarter_third);
+            quarter_fourth = itemView.findViewById(R.id.quarter_fourth);
+            first_change = itemView.findViewById(R.id.txt_change_first);
+            second_change = itemView.findViewById(R.id.txt_change_second);
+            third_change = itemView.findViewById(R.id.txt_change_third);
+            fourth_change = itemView.findViewById(R.id.txt_change_fourth);
+
+            //Post
+            change_txt = itemView.findViewById(R.id.txt_change);
+            actual_eps = itemView.findViewById(R.id.txt_actual_eps);
+
 
             time_txt = itemView.findViewById(R.id.txt_time);
             bell_img = itemView.findViewById(R.id.bell_img);
@@ -221,7 +226,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.MyViewHolder> 
             holder.card_view.setBackgroundColor(Color.parseColor("#FFFFFF"));
         }
 
-        //Left side
+        //Header
         holder.ticker_txt.setText(String.valueOf(report_ticker.get(position)));
         holder.date_txt.setText(String.valueOf(report_date.get(position)).substring(5));
 
@@ -237,58 +242,99 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.MyViewHolder> 
         holder.guidance_est_txt.setText(String.valueOf(report_guidance_est.get(position)));
 
 
-        //Right side
+        //Body
         holder.recom_txt.setText(String.valueOf(report_recom.get(position)));
         holder.price_txt.setText(String.valueOf(report_price.get(position)));
         holder.est_esp_txt.setText(String.valueOf(report_predicted_eps.get(position)));
         holder.volatility_txt.setText(report_volatility.get(position) + "%");
+        holder.average_txt.setText(report_average.get(position) + "%");
         holder.insider_txt.setText(String.valueOf(report_insider_trans.get(position)));
         holder.short_txt.setText(String.valueOf(report_short.get(position)));
         holder.perform_txt.setText(String.valueOf(report_performace.get(position)));
         holder.peg_txt.setText(String.valueOf(report_peg.get(position)));
-        holder.perform_txt.setText(String.valueOf(report_performace.get(position)));
-        holder.since_last_txt.setText(String.valueOf(report_since_last.get(position)));
+        holder.perform_txt.setText(report_performace.get(position) + "%");
+        holder.since_last_txt.setText(report_since_last.get(position) + "%");
+
 
         //Post
-        holder.change_txt.setText(String.valueOf(report_change.get(position)));
+        holder.change_txt.setText(report_change.get(position) + "%");
         holder.actual_eps.setText(String.valueOf(report_actual_eps.get(position)));
 
+        //Footer
+        holder.quarter_first.setText(String.valueOf(report_first_eps.get(position)));
+        holder.quarter_second.setText(String.valueOf(report_second_eps.get(position)));
+        holder.quarter_third.setText(String.valueOf(report_third_eps.get(position)));
+        holder.quarter_fourth.setText(String.valueOf(report_fourth_eps.get(position)));
+
+
+        //Change icons [old]
+//            try {
+//                Double firstFrom = ConvertToDouble(report_first_from.get(position));
+//                Double firstTo = ConvertToDouble(report_first_to.get(position));
+//                if(firstTo - firstFrom > 0){
+//                    holder.first_change.setImageResource(R.drawable.ic_baseline_arrow_green_up_24);
+//                } else {
+//                    holder.first_change.setImageResource(R.drawable.ic_baseline_arrow_red_down_24);
+//                }
+//                Double secondFrom = ConvertToDouble(report_second_from.get(position));
+//                Double secondTo = ConvertToDouble(report_second_to.get(position));
+//                if(secondTo - secondFrom > 0){
+//                    holder.second_change.setImageResource(R.drawable.ic_baseline_arrow_green_up_24);
+//                } else {
+//                    holder.second_change.setImageResource(R.drawable.ic_baseline_arrow_red_down_24);
+//                }
+//                Double thirdFrom = ConvertToDouble(report_third_from.get(position));
+//                Double thirdTo = ConvertToDouble(report_third_to.get(position));
+//                if(thirdTo - thirdFrom > 0){
+//                    holder.third_change.setImageResource(R.drawable.ic_baseline_arrow_green_up_24);
+//                } else {
+//                    holder.third_change.setImageResource(R.drawable.ic_baseline_arrow_red_down_24);
+//                }
+//                Double fourthFrom = ConvertToDouble(report_fourth_from.get(position));
+//                Double fourthTo = ConvertToDouble(report_fourth_to.get(position));
+//                if(fourthTo - fourthFrom > 0){
+//                    holder.fourth_change.setImageResource(R.drawable.ic_baseline_arrow_green_up_24);
+//                } else {
+//                    holder.fourth_change.setImageResource(R.drawable.ic_baseline_arrow_red_down_24);
+//                }
+//            } catch (Exception e) {
+//                System.out.println(report_ticker.get(position) + " change arrows: " + e);
+//            }
+
         //Change
-        if(String.valueOf(report_performace.get(position)) != null && !String.valueOf(report_performace.get(position)).contains("-")) {
-
-            try {
-                Double firstFrom = ConvertToDouble(report_first_from.get(position));
-                Double firstTo = ConvertToDouble(report_first_to.get(position));
-                if(firstTo - firstFrom > 0){
-                    holder.first_change.setImageResource(R.drawable.ic_baseline_arrow_green_up_24);
-                } else {
-                    holder.first_change.setImageResource(R.drawable.ic_baseline_arrow_red_down_24);
-                }
-                Double secondFrom = ConvertToDouble(report_second_from.get(position));
-                Double secondTo = ConvertToDouble(report_second_to.get(position));
-                if(secondTo - secondFrom > 0){
-                    holder.second_change.setImageResource(R.drawable.ic_baseline_arrow_green_up_24);
-                } else {
-                    holder.second_change.setImageResource(R.drawable.ic_baseline_arrow_red_down_24);
-                }
-                Double thirdFrom = ConvertToDouble(report_third_from.get(position));
-                Double thirdTo = ConvertToDouble(report_third_to.get(position));
-                if(thirdTo - thirdFrom > 0){
-                    holder.third_change.setImageResource(R.drawable.ic_baseline_arrow_green_up_24);
-                } else {
-                    holder.third_change.setImageResource(R.drawable.ic_baseline_arrow_red_down_24);
-                }
-                Double fourthFrom = ConvertToDouble(report_fourth_from.get(position));
-                Double fourthTo = ConvertToDouble(report_fourth_to.get(position));
-                if(fourthTo - fourthFrom > 0){
-                    holder.fourth_change.setImageResource(R.drawable.ic_baseline_arrow_green_up_24);
-                } else {
-                    holder.fourth_change.setImageResource(R.drawable.ic_baseline_arrow_red_down_24);
-                }
-            } catch (Exception e) {
-
+        try {
+            Double result = (ConvertToDouble(report_first_to.get(position)) - ConvertToDouble(report_first_from.get(position))) / Math.abs(ConvertToDouble(report_first_from.get(position))) * 100;
+            holder.first_change.setText(String.format("%.2f", result) + "%");
+            if(result > 0){
+                holder.first_change.setTextColor(Color.parseColor("#FF4CAF50"));
+            } else {
+                holder.first_change.setTextColor(Color.parseColor("#FFE91E63"));
             }
+            result = (ConvertToDouble(report_second_to.get(position)) - ConvertToDouble(report_second_from.get(position))) / Math.abs(ConvertToDouble(report_second_from.get(position))) * 100;
+            holder.second_change.setText(String.format("%.2f", result) + "%");
+            if(result > 0){
+                holder.second_change.setTextColor(Color.parseColor("#FF4CAF50"));
+            } else {
+                holder.second_change.setTextColor(Color.parseColor("#FFE91E63"));
+            }
+            result = (ConvertToDouble(report_third_to.get(position)) - ConvertToDouble(report_third_from.get(position))) / Math.abs(ConvertToDouble(report_third_from.get(position))) * 100;
+            holder.third_change.setText(String.format("%.2f", result) + "%");
+            if(result > 0){
+                holder.third_change.setTextColor(Color.parseColor("#FF4CAF50"));
+            } else {
+                holder.third_change.setTextColor(Color.parseColor("#FFE91E63"));
+            }
+            result = (ConvertToDouble(report_fourth_to.get(position)) - ConvertToDouble(report_fourth_from.get(position))) / Math.abs(ConvertToDouble(report_fourth_from.get(position))) * 100;
+            holder.fourth_change.setText(String.format("%.2f", result) + "%");
+            if(result > 0){
+                holder.fourth_change.setTextColor(Color.parseColor("#FF4CAF50"));
+            } else {
+                holder.fourth_change.setTextColor(Color.parseColor("#FFE91E63"));
+            }
+        } catch (Exception e) {
+            System.out.println(report_ticker.get(position) + " change arrows: " + e);
         }
+
 
 
         //Quarters
@@ -322,7 +368,10 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.MyViewHolder> 
                 holder.quarter_fourth.setTextColor(Color.parseColor("#FFE91E63"));
             }
         } catch (Exception e) {
-
+            holder.quarter_first.setTextColor(Color.parseColor("#000000"));
+            holder.quarter_second.setTextColor(Color.parseColor("#000000"));
+            holder.quarter_third.setTextColor(Color.parseColor("#000000"));
+            holder.quarter_fourth.setTextColor(Color.parseColor("#000000"));
         }
 
         //Insider
@@ -356,6 +405,18 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.MyViewHolder> 
             }
             else {
                 holder.price_txt.setTextColor(Color.parseColor("#FF4CAF50"));
+            }
+        } catch (Exception e) {
+
+        }
+
+        //Average
+        try {
+            if(Double.parseDouble(report_average.get(position).toString()) > 0) {
+                holder.average_txt.setTextColor(Color.parseColor("#FF4CAF50"));
+            }
+            else {
+                holder.average_txt.setTextColor(Color.parseColor("#FFE91E63"));
             }
         } catch (Exception e) {
 
@@ -396,6 +457,42 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.MyViewHolder> 
         } catch (Exception e) {
 
         }
+
+        //Change
+        try {
+            if(Double.parseDouble(report_change.get(position).toString().replace("%", "")) > 0) {
+                holder.change_txt.setTextColor(Color.parseColor("#FF4CAF50"));
+            }
+            else {
+                holder.change_txt.setTextColor(Color.parseColor("#FFE91E63"));
+            }
+        } catch (Exception e) {
+
+        }
+
+        //Actual EPS
+        try {
+            if(Double.parseDouble(report_actual_eps.get(position).toString()) > 0) {
+                holder.actual_eps.setTextColor(Color.parseColor("#FF4CAF50"));
+            }
+            else {
+                holder.actual_eps.setTextColor(Color.parseColor("#FFE91E63"));
+            }
+        } catch (Exception e) {
+
+        }
+        //Since last
+//        try {
+//            double sinceLast = Double.parseDouble(report_since_last.get(position).toString());
+//            if(sinceLast > 10 || sinceLast < -10){
+//                holder.since_last_txt.setTextColor(Color.parseColor("#FFE91E63"));
+//            }
+//            else {
+//                holder.since_last_txt.setTextColor(Color.parseColor("#FF4CAF50"));
+//            }
+//        } catch (Exception e) {
+//
+//        }
 
 
 
