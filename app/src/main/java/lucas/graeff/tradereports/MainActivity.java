@@ -130,8 +130,6 @@ public class MainActivity extends FragmentActivity {
     }
 
     private void setAlarm() {
-        Intent intent = new Intent(this, AlarmReceiver.class);
-
         AlarmManager alarmMgr;
         PendingIntent alarmIntent;
         alarmMgr = (AlarmManager)getApplicationContext().getSystemService(Context.ALARM_SERVICE);
@@ -142,7 +140,6 @@ public class MainActivity extends FragmentActivity {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
         calendar.set(Calendar.HOUR_OF_DAY, 10);
-        System.out.println(calendar.getTimeInMillis());
 
         // Check if the Calendar time is in the past
         if (calendar.getTimeInMillis() < System.currentTimeMillis()) {

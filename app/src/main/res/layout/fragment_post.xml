@@ -13,6 +13,7 @@
         android:layout_marginStart="8dp"
         android:text="###%"
         android:textSize="34sp"
+        android:visibility="invisible"
         app:layout_constraintStart_toEndOf="@+id/txt_winrate_label"
         app:layout_constraintTop_toTopOf="@+id/txt_winrate_label" />
 
@@ -22,6 +23,7 @@
         android:layout_height="wrap_content"
         android:text="Winrate:"
         android:textSize="34sp"
+        android:visibility="invisible"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

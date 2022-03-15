@@ -20,9 +20,6 @@ public class AlarmReceiver extends BroadcastReceiver {
     MyDatabaseHelper db;
 
     public Context context;
-    public AlarmReceiver() {
-
-    }
 
     @Override
     public void onReceive(Context context, Intent intent) {

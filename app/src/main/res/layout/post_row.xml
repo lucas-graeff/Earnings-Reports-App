@@ -45,14 +45,14 @@
                 android:layout_marginTop="7dp"
                 android:text="mm/dd"
                 app:layout_constraintBottom_toBottomOf="@+id/ticker_txt"
-                app:layout_constraintEnd_toEndOf="@+id/label_price"
-                app:layout_constraintStart_toStartOf="@+id/label_price"
+                app:layout_constraintEnd_toEndOf="@+id/txt_price"
+                app:layout_constraintStart_toStartOf="@+id/txt_price"
                 app:layout_constraintTop_toBottomOf="@+id/txt_time"
                 app:layout_constraintVertical_bias="1.0" />
 
             <TextView
                 android:id="@+id/quarter_second"
-                android:layout_width="wrap_content"
+                android:layout_width="44dp"
                 android:layout_height="wrap_content"
                 android:text="#.##"
                 android:textSize="20sp"
@@ -73,10 +73,10 @@
 
             <TextView
                 android:id="@+id/quarter_third"
-                android:layout_width="wrap_content"
+                android:layout_width="44dp"
                 android:layout_height="wrap_content"
                 android:text="#.##"
-                android:textSize="16sp"
+                android:textSize="20sp"
                 app:layout_constraintBottom_toBottomOf="@+id/quarter_second"
                 app:layout_constraintEnd_toStartOf="@+id/quarter_second"
                 app:layout_constraintHorizontal_bias="0.5"
@@ -88,16 +88,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="#.##"
-                android:textSize="16sp"
+                android:textSize="20sp"
                 app:layout_constraintStart_toStartOf="@+id/quarter_third"
                 app:layout_constraintTop_toBottomOf="@+id/quarter_third" />
 
             <TextView
                 android:id="@+id/quarter_fourth"
-                android:layout_width="wrap_content"
+                android:layout_width="44dp"
                 android:layout_height="wrap_content"
                 android:text="#.##"
-                android:textSize="14sp"
+                android:textSize="20sp"
                 app:layout_constraintBottom_toBottomOf="@+id/quarter_third"
                 app:layout_constraintEnd_toStartOf="@+id/quarter_third"
                 app:layout_constraintHorizontal_bias="0.5"
@@ -109,17 +109,17 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="#.##"
-                android:textSize="14sp"
+                android:textSize="20sp"
                 app:layout_constraintEnd_toEndOf="@+id/quarter_fourth"
                 app:layout_constraintTop_toBottomOf="@+id/quarter_fourth" />
 
             <TextView
                 android:id="@+id/quarter_first"
-                android:layout_width="wrap_content"
+                android:layout_width="44dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="64dp"
                 android:text="#.##"
-                android:textSize="24sp"
+                android:textSize="20sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toEndOf="@+id/quarter_second"
@@ -130,7 +130,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="#.##"
-                android:textSize="24sp"
+                android:textSize="20sp"
                 app:layout_constraintStart_toStartOf="@+id/quarter_first"
                 app:layout_constraintTop_toBottomOf="@+id/quarter_first" />
 
@@ -139,7 +139,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                app:layout_constraintBottom_toBottomOf="@+id/ticker_txt"
                 app:layout_constraintStart_toEndOf="@+id/ticker_txt"
                 app:layout_constraintTop_toTopOf="@+id/ticker_txt"
                 app:srcCompat="@drawable/ic_baseline_wb_sunny_24" />
@@ -232,11 +231,12 @@
                 android:id="@+id/label_price"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="34dp"
                 android:layout_marginTop="8dp"
                 android:text="Price"
                 android:textSize="16sp"
-                app:layout_constraintStart_toEndOf="@+id/txt_average"
+                app:layout_constraintEnd_toEndOf="@+id/quarter_second"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="@+id/quarter_third"
                 app:layout_constraintTop_toBottomOf="@+id/date_txt" />
 
             <TextView
@@ -302,7 +302,7 @@
                 android:textSize="14sp"
                 app:layout_constraintEnd_toEndOf="@+id/label_volatility"
                 app:layout_constraintStart_toStartOf="@+id/label_volatility"
-                app:layout_constraintTop_toTopOf="@+id/ticker_txt" />
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/txt_guidance_est"
@@ -399,17 +399,16 @@
                 android:text="#:## AM"
                 app:layout_constraintEnd_toEndOf="@+id/date_txt"
                 app:layout_constraintStart_toStartOf="@+id/date_txt"
-                app:layout_constraintTop_toTopOf="@+id/txt_guidance" />
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/txt_average"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
+                android:layout_marginStart="8dp"
                 android:text="#.##%"
                 app:layout_constraintBottom_toBottomOf="@+id/ticker_txt"
-                app:layout_constraintStart_toEndOf="@+id/bell_img"
-                app:layout_constraintTop_toTopOf="@+id/ticker_txt" />
+                app:layout_constraintStart_toEndOf="@+id/ticker_txt" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
