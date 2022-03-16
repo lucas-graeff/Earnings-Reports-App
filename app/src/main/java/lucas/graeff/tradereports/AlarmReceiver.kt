@@ -5,14 +5,16 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import java.util.*
+import lucas.graeff.tradereports.room.AppDatabase
+import lucas.graeff.tradereports.webscraping.CollectData
 import kotlin.concurrent.thread
 
 class AlarmReceiver : BroadcastReceiver() {
     var context: Context? = null
     override fun onReceive(context: Context, intent: Intent) {
+        val db: AppDatabase = AppDatabase.getInstance(context)
         thread {
-            CollectData(context)
+            CollectData(db)
         }.join()
 
 //        thread {

@@ -36,7 +36,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         if (prefs.getBoolean("firstrun", true)) {
 
             thread {
-                CollectData.webScrape()
+                CollectData(db).run()
             }.join()
 
 //            thread {
@@ -49,8 +49,10 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         // TODO: Read data into recyclerview
         thread {
             reportAdapter = ReportAdapter(view.context, db, db.reportDao().getUpcomingReports())
-            recyclerView.adapter = reportAdapter
-            recyclerView.layoutManager = LinearLayoutManager(requireView().context)
+            activity?.runOnUiThread  {
+                recyclerView.adapter = reportAdapter
+                recyclerView.layoutManager = LinearLayoutManager(requireView().context)
+            }
         }
 
 

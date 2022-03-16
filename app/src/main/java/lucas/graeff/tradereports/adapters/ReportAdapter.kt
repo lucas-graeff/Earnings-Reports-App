@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import lucas.graeff.tradereports.R
 import lucas.graeff.tradereports.room.AppDatabase
 import lucas.graeff.tradereports.room.Report
+import kotlin.concurrent.thread
 
 class ReportAdapter(
     private val context: Context,
@@ -101,19 +102,22 @@ class ReportAdapter(
 
         //Listen for card click
         holder.card_view.setOnClickListener {
-            val id = reports[position].id
-            if (reports[position].list == 1) {
-                //Remove from list
-                db.reportDao().setList(0, id)
-                reports[position].list = 0
-                holder.card_view.setBackgroundColor(Color.parseColor("#FFFFFF"))
-            } else {
-                //Add to list
-                db.reportDao().setList(1, id)
-                reports[position].list = 1
-                holder.card_view.setBackgroundColor(Color.parseColor("#FFA7D8FF"))
+            thread {
+                val id = reports[position].id
+                if (reports[position].list == 1) {
+                    //Remove from list
+                    db.reportDao().setList(0, id)
+                    reports[position].list = 0
+                    holder.card_view.setBackgroundColor(Color.parseColor("#FFFFFF"))
+                } else {
+                    //Add to list
+                    db.reportDao().setList(1, id)
+                    reports[position].list = 1
+                    holder.card_view.setBackgroundColor(Color.parseColor("#FFA7D8FF"))
+                }
+                println("Card listener: $id")
             }
-            println("Card listener: $id")
+
         }
 
         //Set background colors based off of list value
@@ -141,8 +145,8 @@ class ReportAdapter(
         holder.recom_txt.text = reports[position].recommended.toString()
         holder.price_txt.text = reports[position].price.toString()
         holder.est_esp_txt.text = reports[position].predictedEps.toString()
-        holder.volatility_txt.text = "${reports[position].volatility}%"
-        holder.average_txt.text = reports[position].average.toString()
+        holder.volatility_txt.text = "${String.format("%.2f", reports[position].volatility)}%"
+        holder.average_txt.text = String.format("%.2f", reports[position].average)
         holder.insider_txt.text = reports[position].insiderTrans.toString()
         holder.short_txt.text = reports[position].shortFloat.toString()
         holder.peg_txt.text = reports[position].peg.toString()
@@ -163,28 +167,28 @@ class ReportAdapter(
 
         //Change
         try {
-            holder.first_change.text = "${reports[position].quarterPerformanceFirst}%"
+            holder.first_change.text = "${String.format("%.2f", reports[position].quarterPerformanceFirst)}%"
             if (reports[position].quarterPerformanceFirst > 0) {
                 holder.first_change.setTextColor(Color.parseColor("#FF4CAF50"))
             } else {
                 holder.first_change.setTextColor(Color.parseColor("#FFE91E63"))
             }
 
-            holder.second_change.text = "${reports[position].quarterPerformanceSecond}%"
+            holder.second_change.text = "${String.format("%.2f", reports[position].quarterPerformanceSecond)}%"
             if (reports[position].quarterPerformanceSecond > 0) {
                 holder.second_change.setTextColor(Color.parseColor("#FF4CAF50"))
             } else {
                 holder.second_change.setTextColor(Color.parseColor("#FFE91E63"))
             }
 
-            holder.third_change.text = "${reports[position].quarterPerformanceThird}%"
+            holder.third_change.text = "${String.format("%.2f", reports[position].quarterPerformanceThird)}%"
             if (reports[position].quarterPerformanceThird > 0) {
                 holder.third_change.setTextColor(Color.parseColor("#FF4CAF50"))
             } else {
                 holder.third_change.setTextColor(Color.parseColor("#FFE91E63"))
             }
 
-            holder.fourth_change.text = "${reports[position].quarterPerformanceFourth}%"
+            holder.fourth_change.text = "${String.format("%.2f", reports[position].quarterPerformanceFourth)}%"
             if (reports[position].quarterPerformanceFourth > 0) {
                 holder.fourth_change.setTextColor(Color.parseColor("#FF4CAF50"))
             } else {
@@ -205,21 +209,21 @@ class ReportAdapter(
             }
             //Second
             if (reports[position].epsSecond > reports[position].epsThird) {
-                holder.quarter_first.setTextColor(Color.parseColor("#FF4CAF50"))
+                holder.quarter_second.setTextColor(Color.parseColor("#FF4CAF50"))
             } else {
-                holder.quarter_first.setTextColor(Color.parseColor("#FFE91E63"))
+                holder.quarter_second.setTextColor(Color.parseColor("#FFE91E63"))
             }
             //Third
             if (reports[position].epsThird > reports[position].epsFourth) {
-                holder.quarter_first.setTextColor(Color.parseColor("#FF4CAF50"))
+                holder.quarter_third.setTextColor(Color.parseColor("#FF4CAF50"))
             } else {
-                holder.quarter_first.setTextColor(Color.parseColor("#FFE91E63"))
+                holder.quarter_third.setTextColor(Color.parseColor("#FFE91E63"))
             }
             //Fourth
             if (reports[position].epsFourth > reports[position].epsFifth) {
-                holder.quarter_first.setTextColor(Color.parseColor("#FF4CAF50"))
+                holder.quarter_fourth.setTextColor(Color.parseColor("#FF4CAF50"))
             } else {
-                holder.quarter_first.setTextColor(Color.parseColor("#FFE91E63"))
+                holder.quarter_fourth.setTextColor(Color.parseColor("#FFE91E63"))
             }
         } catch (e: Exception) {
             holder.quarter_first.setTextColor(Color.parseColor("#000000"))
@@ -227,6 +231,14 @@ class ReportAdapter(
             holder.quarter_third.setTextColor(Color.parseColor("#000000"))
             holder.quarter_fourth.setTextColor(Color.parseColor("#000000"))
         }
+
+        //Post stats
+        if(reports[position].resultChange == 0.0 || reports[position].resultEps == 0.0) {
+            holder.actual_eps.visibility = View.GONE
+            holder.change_txt.visibility = View.GONE
+            // TODO: Hide labels
+        }
+
 
         //Insider
         try {
