@@ -9,6 +9,9 @@ interface ReportDao {
     @Query("SELECT * FROM Report")
     fun getUpcomingReports(): List<Report>
 
+    @Query("SELECT ticker, date FROM Report WHERE date > date('now', '-7 days')")
+    fun recentReports(): List<Report>
+
     @RawQuery
     fun rawQuery(query: SupportSQLiteQuery): List<Report>
 
