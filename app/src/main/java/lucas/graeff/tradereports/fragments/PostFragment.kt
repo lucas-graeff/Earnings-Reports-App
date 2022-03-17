@@ -1,25 +1,24 @@
 package lucas.graeff.tradereports.fragments
 
-import android.database.Cursor
-import lucas.graeff.tradereports.adapters.ReportAdapter
+import android.content.Context
 import android.os.Bundle
-import android.view.Display
 import android.view.View
-import lucas.graeff.tradereports.R
-import androidx.recyclerview.widget.RecyclerView
-import android.widget.TextView
-import lucas.graeff.tradereports.SharedFunctions
 import android.widget.CompoundButton
 import android.widget.Switch
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import lucas.graeff.tradereports.R
+import lucas.graeff.tradereports.adapters.ReportAdapter
 import lucas.graeff.tradereports.room.AppDatabase
-import java.util.ArrayList
+import lucas.graeff.tradereports.room.Report
+import kotlin.concurrent.thread
 
 class PostFragment : Fragment(R.layout.fragment_post) {
-    var reportAdapter: ReportAdapter? = null
-    var filter_switch: Switch? = null
+    private var filterSwitch: Switch? = null
     var switchState = 0
+    lateinit var data: List<Report>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,7 +30,7 @@ class PostFragment : Fragment(R.layout.fragment_post) {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        if (filter_switch!!.isChecked) {
+        if (filterSwitch!!.isChecked) {
             outState.putInt(SWITCH_KEY, 1)
         } else {
             outState.putInt(SWITCH_KEY, 0)
@@ -42,10 +41,12 @@ class PostFragment : Fragment(R.layout.fragment_post) {
         super.onCreate(savedInstanceState)
         val db: AppDatabase = AppDatabase.getInstance(view.context)
         val recyclerView: RecyclerView = view.findViewById(R.id.recyclerView)
-        filter_switch = view.findViewById(R.id.filter_switch)
+        createdRecycler(db, 0, recyclerView, view.context)
+
+        filterSwitch = view.findViewById(R.id.filter_switch)
         val winRate = view.findViewById<TextView>(R.id.txt_winrate)
         if (switchState == 1) {
-            filter_switch?.isChecked = true
+            filterSwitch?.isChecked = true
         }
 
 //        winRate.text = SharedFunctions.WinRate(
@@ -53,15 +54,15 @@ class PostFragment : Fragment(R.layout.fragment_post) {
 //            "select count(b.id) as Winners, count(*) as TotalCount from REPORTS a left join REPORTS b on b.id = a.id and b.change > 0 WHERE a.list = 1 AND a.change NOT NULL"
 //        ).toString() + "%"
 
-        filter_switch?.setOnCheckedChangeListener(CompoundButton.OnCheckedChangeListener { buttonView: CompoundButton?, isChecked: Boolean ->
-            if (isChecked) {
-//                ReadData(db.PostInfo(true))
-            } else {
-//                ReadData(db.PostInfo(false))
-            }
+        filterSwitch?.setOnCheckedChangeListener { buttonView: CompoundButton?, isChecked: Boolean ->
+            createdRecycler(db, (if(isChecked) 1 else 0), recyclerView, view.context)
+        }
+    }
 
-        })
-
+    private fun createdRecycler(db: AppDatabase, list: Int, recyclerView: RecyclerView, context: Context) {
+        thread { data = db.reportDao().postResults(list) }.join()
+        recyclerView.adapter = ReportAdapter(context, db, data)
+        recyclerView.layoutManager = LinearLayoutManager(requireView().context)
     }
 
     companion object {

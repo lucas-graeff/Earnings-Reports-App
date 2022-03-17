@@ -14,18 +14,19 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.room.Room
 import lucas.graeff.tradereports.adapters.ReportAdapter
 import lucas.graeff.tradereports.room.AppDatabase
+import lucas.graeff.tradereports.room.Report
 import lucas.graeff.tradereports.webscraping.CollectData
 import kotlin.concurrent.thread
 
 class HomeFragment : Fragment(R.layout.fragment_home) {
-    var reportAdapter: ReportAdapter? = null
+    lateinit var data: List<Report>
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val prefs : SharedPreferences = view.context.getSharedPreferences("prefs", Context.MODE_PRIVATE)
 
         //Create database
-        var db = Room.databaseBuilder(
+        val db = Room.databaseBuilder(
             view.context,
             AppDatabase::class.java, "reports"
         ).build()
@@ -39,22 +40,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 CollectData(db).run()
             }.join()
 
-//            thread {
-//                PostAnalysis(view.context)
-//            }.join()
-
             prefs.edit().putBoolean("firstrun", false).apply()
         }
-
-        // TODO: Read data into recyclerview
-        thread {
-            reportAdapter = ReportAdapter(view.context, db, db.reportDao().getUpcomingReports())
-            activity?.runOnUiThread  {
-                recyclerView.adapter = reportAdapter
-                recyclerView.layoutManager = LinearLayoutManager(requireView().context)
-            }
-        }
-
 
         //Create dropdown menu
         val dropdownOptions =
@@ -65,55 +52,38 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         dropdownAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         dropdown.adapter = dropdownAdapter
         dropdown.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(
-                parent: AdapterView<*>?,
-                view: View,
-                position: Int,
-                id: Long
-            ) {
-                var query: String
-                when (position) {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                thread {
+                    when (position) {
 
-                    0 -> {
-                        query =
-                            "SELECT * FROM reports WHERE reports.date > date('now', '-1 day') AND recom < 2.5 AND perf_week > 0 AND predicted_eps > 0  AND peg < 1 ORDER BY date ASC"
-                    } // Read data into Recycler
-                    1 -> {
-                        query =
-                            "SELECT * FROM reports WHERE reports.date > date('now', '-1 day') AND recom < 2.5 AND perf_week > 0 AND predicted_eps > 0  AND peg < 1 ORDER BY date ASC"
-                        // Read data into Recycler
+                        0 -> {
+                            data = db.reportDao().getUpcomingReports()
+                        } // Read data into Recycler
+                        1 -> {
+                            data = db.reportDao().filterStrict()
+                            // Read data into Recycler
+                        }
+                        2 -> {
+                            data = db.reportDao().filterGuidance()
+                            // Read data into Recycler
+                        }
+                        3 -> {
+                            data = db.reportDao().filterRaisingEps()
+                            // Read data into Recycler
+                        }
+                        4 -> {
+                            data = db.reportDao().filterPositiveChange()
+                            // Read data into Recycler
+                        }
+                        5 -> {
+                            data = db.reportDao().filterPositiveChange()
+                            // Read data into Recycler
+                        }
                     }
-                    2 -> {
-                        query =
-                            "SELECT * FROM reports WHERE reports.date > date('now', '-1 day') AND guidance_est > guidance_min ORDER BY date ASC"
-                        // Read data into Recycler
-                    }
-                    3 -> {
-                        query =
-                            "SELECT * FROM reports WHERE reports.date > date('now', '-1 day') AND first_eps > second_eps AND second_eps > third_eps AND third_eps > fourth_eps AND fourth_eps > fifth_eps ORDER BY date ASC"
-                        // Read data into Recycler
-                        query =
-                            "SELECT * FROM reports WHERE reports.date > date('now', '-1 day') AND first_from > first_to AND second_to > second_from AND third_to > third_from AND fourth_to > fourth_from ORDER BY date ASC"
-                        // Read data into Recycler
-                        query =
-                            "SELECT * FROM REPORTS WHERE average > 0 AND average IS NOT '-' ORDER BY average DESC"
-                        // Read data into Recycler
-                    }
-                    4 -> {
-                        query =
-                            "SELECT * FROM reports WHERE reports.date > date('now', '-1 day') AND first_from > first_to AND second_to > second_from AND third_to > third_from AND fourth_to > fourth_from ORDER BY date ASC"
-                        // Read data into Recycler
-                        query =
-                            "SELECT * FROM REPORTS WHERE average > 0 AND average IS NOT '-' ORDER BY average DESC"
-                        // Read data into Recycler
-                    }
-                    5 -> {
-                        query =
-                            "SELECT * FROM REPORTS WHERE average > 0 AND average IS NOT '-' ORDER BY average DESC"
-                        // Read data into Recycler
-                    }
-                }
-                // TODO: Notify data change
+                }.join()
+                // Recyclerview Settings
+                recyclerView.adapter = ReportAdapter(requireContext(), db, data)
+                recyclerView.layoutManager = LinearLayoutManager(requireContext())
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
@@ -121,12 +91,4 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             }
         }
     }
-
-    fun display(recyclerView: RecyclerView) {
-        // customAdapter = CustomAdapter()
-        recyclerView.adapter = reportAdapter
-        recyclerView.layoutManager = LinearLayoutManager(requireView().context)
-    }
-
-
 }

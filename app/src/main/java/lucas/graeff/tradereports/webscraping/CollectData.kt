@@ -265,7 +265,13 @@ class CollectData(var db: AppDatabase) : Runnable {
             e.printStackTrace()
             println("${report.ticker}: $e")
         }
-        db.reportDao().addReport(report)
+        if(recentTickers.contains(report.ticker)) {
+            db.reportDao().updateReport(report)
+        }
+        else {
+            db.reportDao().addReport(report)
+        }
+
     }
 
 }
